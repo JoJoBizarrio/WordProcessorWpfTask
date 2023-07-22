@@ -1,11 +1,9 @@
-﻿using Microsoft.Win32;
+﻿using AsyncAwaitBestPractices.MVVM;
+using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -18,6 +16,7 @@ namespace WordProcessingWpfTask.ViewModel
 		public MainWindowViewModel(IRedactor redactor)
 		{
 			_redactor = redactor;
+			OpenAsync = new AsyncCommand(OpenCommand);
 		}
 
 		private readonly IRedactor _redactor;
@@ -43,51 +42,27 @@ namespace WordProcessingWpfTask.ViewModel
 			}
 		}
 
-		//private string _pathToFile;
-		//public string PathToFile
-		//{
-		//	get => _pathToFile;
-		//	set
-		//	{
-		//		if (_pathToFile != value && File.Exists(_pathToFile))
-		//		{
-		//			using (StreamReader streamReader = new StreamReader(_pathToFile))
-		//			{
-		//				CurrentText = streamReader.ReadToEnd();
-		//			}
-		//		}
+		public IAsyncCommand OpenAsync { get; }
 
-		//		OnPropertyChanged(nameof(PathToFile));
-		//	}
-		//}
-
-		private ICommand _open;
-
-		public ICommand Open
+		async public Task OpenCommand()
 		{
-			get
+			OpenFileDialog openFileDialog = new OpenFileDialog();
+			openFileDialog.Title = "Choose file";
+			openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+			openFileDialog.Filter = "Text (*.txt)|*.txt|WinWord (*.docx)|*.docx|All files (*.*)|*.*";
+
+			if (openFileDialog.ShowDialog() == false)
 			{
-				return _open ?? (_open = new RelayCommand(obj =>
-				{
-					OpenFileDialog openFileDialog = new OpenFileDialog();
-					openFileDialog.Title = "Choose file";
-					openFileDialog.InitialDirectory = Environment.CurrentDirectory;
-					openFileDialog.Filter = "Text (*.txt)|*.txt|WinWord (*.docx)|*.docx|All files (*.*)|*.*";
+				return;
+			}
 
-					if (openFileDialog.ShowDialog() == false)
-					{
-						return;
-					}
-
-					using (StreamReader streamReader = new StreamReader(openFileDialog.FileName))
-					{
-						CurrentText = streamReader.ReadToEnd();
-					}
-				}));
+			using (StreamReader streamReader = new StreamReader(openFileDialog.FileName))
+			{
+				CurrentText = await streamReader.ReadToEndAsync();
 			}
 		}
 
-		public ICommand Quit { get => new RelayCommand(p => Application.Current.Shutdown()); }
+		public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
 
 		public MainWindowViewModel()
 		{
