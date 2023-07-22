@@ -1,0 +1,46 @@
+﻿<Window x:Class="WordProcessingWpfTask.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WordProcessingWpfTask.View"
+        xmlns:vn="clr-namespace:WordProcessingWpfTask.ViewModel"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    
+    <DockPanel >
+        <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Open" Command="{Binding Open}"/>
+                <Separator/>
+                <MenuItem Header="Выход" Command="{Binding Quit}"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="9*"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Grid Background="#FFDADADA" Margin="5,5,5,5">
+                <TextBox Text="{Binding CurrentText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  TextWrapping="Wrap"/>
+            </Grid>
+            <Grid Background="#FFF6BFBF" Grid.Row="1" Margin="5,5,5,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="161*"/>
+                    <ColumnDefinition Width="212*"/>
+                    <ColumnDefinition Width="417*"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="LetterCountTextBox" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Count of letter" VerticalAlignment="Center"/>
+                <CheckBox x:Name="IsNeedRemoveSeparatorsCheckBox" Content="Remove separators?" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button x:Name="RemoveButton" Grid.Column="2" Content="Remove" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+
+        </Grid>
+    </DockPanel>
+
+</Window>
