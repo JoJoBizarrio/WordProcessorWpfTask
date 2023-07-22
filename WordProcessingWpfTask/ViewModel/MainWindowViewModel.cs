@@ -15,7 +15,12 @@ namespace WordProcessingWpfTask.ViewModel
 {
 	internal class MainWindowViewModel : INotifyPropertyChanged
 	{
-		private readonly IRedactor _redactor = new Redactor();
+		public MainWindowViewModel(IRedactor redactor)
+		{
+			_redactor = redactor;
+		}
+
+		private readonly IRedactor _redactor;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 

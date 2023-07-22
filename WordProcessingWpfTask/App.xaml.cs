@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using WordProcessingWpfTask.Model;
 using WordProcessingWpfTask.View;
 using WordProcessingWpfTask.ViewModel;
 
@@ -12,7 +13,8 @@ namespace WordProcessingWpfTask
 		protected override void OnStartup(StartupEventArgs e)
 		{
 			MainWindow mainWindow = new MainWindow();
-			mainWindow.DataContext = new MainWindowViewModel();
+			IRedactor redactor = new Redactor();
+			mainWindow.DataContext = new MainWindowViewModel(redactor);
 			mainWindow.Show();
 		}
 	}
