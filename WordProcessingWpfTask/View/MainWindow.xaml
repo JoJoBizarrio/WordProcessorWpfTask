@@ -11,7 +11,7 @@
     <DockPanel >
         <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem Header="Open" Command="{Binding Open}"/>
+                <MenuItem Header="Open" Command="{Binding OpenAsync}"/>
                 <Separator/>
                 <MenuItem Header="Выход" Command="{Binding Quit}"/>
             </MenuItem>
@@ -27,7 +27,7 @@
             </Grid.RowDefinitions>
 
             <Grid Background="#FFDADADA" Margin="5,5,5,5">
-                <TextBox Text="{Binding CurrentText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  TextWrapping="Wrap"/>
+                <TextBox Text="{Binding CurrentText}"  TextWrapping="Wrap" VerticalScrollBarVisibility="Visible"/>
             </Grid>
             <Grid Background="#FFF6BFBF" Grid.Row="1" Margin="5,5,5,5">
                 <Grid.ColumnDefinitions>
