@@ -8,26 +8,14 @@ namespace WordProcessingWpfTask.Model
 {
 	internal class Redactor : IRedactor
 	{
-		public string Text { get; private set; }
-
 		public Redactor() { }
 
-		public Redactor(string text)
-		{
-			Text = text;
-		}
-
-		Task IRedactor.ReadFileAsync(string path)
+		public Task RemoveSeparatorsAsync(string text)
 		{
 			throw new NotImplementedException();
 		}
 
-		Task IRedactor.RemoveSeparatorsAsync()
-		{
-			throw new NotImplementedException();
-		}
-
-		Task IRedactor.RemoveWordsAsync(int LetterCount)
+		public Task RemoveWordsAsync(string text, int LetterCount)
 		{
 			throw new NotImplementedException();
 		}

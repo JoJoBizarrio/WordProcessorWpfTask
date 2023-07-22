@@ -67,7 +67,7 @@ namespace WordProcessingWpfTask.ViewModel
 					OpenFileDialog openFileDialog = new OpenFileDialog();
 					openFileDialog.Title = "Choose file";
 					openFileDialog.InitialDirectory = Environment.CurrentDirectory;
-					openFileDialog.Filter = "Text (*.txt)|*.txt|All files (*.*)|*.*";
+					openFileDialog.Filter = "Text (*.txt)|*.txt|WinWord (*.docx)|*.docx|All files (*.*)|*.*";
 
 					if (openFileDialog.ShowDialog() == false)
 					{
@@ -78,7 +78,6 @@ namespace WordProcessingWpfTask.ViewModel
 					{
 						CurrentText = streamReader.ReadToEnd();
 					}
-
 				}));
 			}
 		}
@@ -87,7 +86,7 @@ namespace WordProcessingWpfTask.ViewModel
 
 		public MainWindowViewModel()
 		{
-			CurrentText = "new reaqst";
+			CurrentText = "Choose and open file...";
 		}
 	}
 }

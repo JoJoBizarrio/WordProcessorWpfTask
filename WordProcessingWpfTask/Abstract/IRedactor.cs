@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace WordProcessingWpfTask.Model
 {
-	internal interface IRedactor
+	public interface IRedactor
 	{
-		Task ReadFileAsync(string path);
+		Task RemoveWordsAsync(string text, int LetterCount);
 
-		Task RemoveWordsAsync(int LetterCount);
-
-		Task RemoveSeparatorsAsync();
+		Task RemoveSeparatorsAsync(string text);
 	}
 }
