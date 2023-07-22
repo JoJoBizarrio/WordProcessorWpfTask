@@ -15,21 +15,14 @@ namespace WordProcessingWpfTask.ViewModel
 	{
 		public MainWindowViewModel(IRedactor redactor)
 		{
+			CurrentText = "File => Open => Choose and open file...";
 			_redactor = redactor;
-			OpenAsync = new AsyncCommand(OpenCommand);
+			OpenAsync = new AsyncCommand(OnOpenExecutedAsync);
 		}
 
 		private readonly IRedactor _redactor;
 
-		public event PropertyChangedEventHandler PropertyChanged;
 
-		public void OnPropertyChanged([CallerMemberName] string propertyName = "")
-		{
-			if (PropertyChanged != null)
-			{
-				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
 
 		private string _currentText { get; set; }
 		public string CurrentText
@@ -43,8 +36,9 @@ namespace WordProcessingWpfTask.ViewModel
 		}
 
 		public IAsyncCommand OpenAsync { get; }
+		public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
 
-		async public Task OpenCommand()
+		async public Task OnOpenExecutedAsync()
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			openFileDialog.Title = "Choose file";
@@ -58,15 +52,19 @@ namespace WordProcessingWpfTask.ViewModel
 
 			using (StreamReader streamReader = new StreamReader(openFileDialog.FileName))
 			{
+				CurrentText = null;
 				CurrentText = await streamReader.ReadToEndAsync();
 			}
 		}
 
-		public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
+		public event PropertyChangedEventHandler PropertyChanged;
 
-		public MainWindowViewModel()
+		public void OnPropertyChanged([CallerMemberName] string propertyName = "")
 		{
-			CurrentText = "Choose and open file...";
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
 		}
 	}
 }
