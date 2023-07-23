@@ -13,6 +13,7 @@
             <MenuItem Header="File">
                 <MenuItem Header="Open" Command="{Binding OpenAsync}"/>
                 <Separator/>
+                <MenuItem Header="Save" Command="{Binding SaveAsync}"/>
                 <MenuItem Header="Quit" Command="{Binding Quit}"/>
             </MenuItem>
         </Menu>
@@ -30,7 +31,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding CurrentText, Mode=TwoWay}"  TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" FontSize="16"/>
+                <TextBox Text="{Binding CurrentText, Mode=TwoWay}" TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" FontSize="16"/>
             </Grid>
             <Grid Background="#FFF6BFBF" Grid.Row="1" Margin="5,5,5,5">
                 <Grid.ColumnDefinitions>
