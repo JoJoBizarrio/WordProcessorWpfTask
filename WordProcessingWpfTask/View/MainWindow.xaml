@@ -7,13 +7,13 @@
         xmlns:vn="clr-namespace:WordProcessingWpfTask.ViewModel"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    
+
     <DockPanel >
         <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem Header="Open" Command="{Binding Open}"/>
+                <MenuItem Header="Open" Command="{Binding OpenAsync}"/>
                 <Separator/>
-                <MenuItem Header="Выход" Command="{Binding Quit}"/>
+                <MenuItem Header="Quit" Command="{Binding Quit}"/>
             </MenuItem>
         </Menu>
 
@@ -27,17 +27,28 @@
             </Grid.RowDefinitions>
 
             <Grid Background="#FFDADADA" Margin="5,5,5,5">
-                <TextBox Text="{Binding CurrentText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  TextWrapping="Wrap"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding CurrentText, Mode=TwoWay}"  TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" FontSize="16"/>
             </Grid>
             <Grid Background="#FFF6BFBF" Grid.Row="1" Margin="5,5,5,5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="161*"/>
-                    <ColumnDefinition Width="212*"/>
-                    <ColumnDefinition Width="417*"/>
+                    <ColumnDefinition Width="142*"/>
+                    <ColumnDefinition Width="133*"/>
+                    <ColumnDefinition Width="515*"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="LetterCountTextBox" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Count of letter" VerticalAlignment="Center"/>
-                <CheckBox x:Name="IsNeedRemoveSeparatorsCheckBox" Content="Remove separators?" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button x:Name="RemoveButton" Grid.Column="2" Content="Remove" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox x:Name="LetterCountTextBox" HorizontalAlignment="Center" TextWrapping="Wrap" Text="{Binding LettersCount, Mode=TwoWay}" VerticalAlignment="Center" MinWidth="100" Height="18" Width="100"/>
+                <Button x:Name="RemoveButton" Command="{Binding RemoveWordsAsync}" Grid.Column="1" Content="Remove words" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="100" MinHeight="21" Height="21" Width="100"/>
+                <Button x:Name="RemoveSeparators" Command="{Binding RemoveSeparatorsAsync}" Grid.Column="2" Content=" Remove marks" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="100" MinHeight="21" Height="21" Width="100"/>
+
+                <!--<CheckBox x:Name="IsNeedRemoveSeparatorsCheckBox" IsChecked="{Binding IsNeedRemoveSeparators, Mode=OneWayToSource}" Content="Remove separators?" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>-->
+                <!--<Button x:Name="MultiBind" >
+                    <MultiBinding>
+                        <Binding ElementName="LetterCountTextBox" Path="Text"/>
+                        <Binding ElementName="IsNeedRemoveSeparatorsCheckBox" Path="IsChecked"/>
+                    </MultiBinding>
+                </Button>-->
             </Grid>
 
         </Grid>

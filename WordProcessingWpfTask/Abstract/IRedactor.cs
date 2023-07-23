@@ -8,8 +8,8 @@ namespace WordProcessingWpfTask.Model
 {
 	public interface IRedactor
 	{
-		Task RemoveWordsAsync(string text, int LetterCount);
+		Task<string> RemoveWordsParallelAsync(string text, int letterCount);
 
-		Task RemoveSeparatorsAsync(string text);
+		Task<string> RemoveAllSeparatorsParallelAsync(string text);
 	}
 }

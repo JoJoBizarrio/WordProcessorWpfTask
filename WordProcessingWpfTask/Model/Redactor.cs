@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Navigation;
 
 namespace WordProcessingWpfTask.Model
 {
@@ -10,14 +11,62 @@ namespace WordProcessingWpfTask.Model
 	{
 		public Redactor() { }
 
-		public Task RemoveSeparatorsAsync(string text)
+		//private readonly char[] _punctuationMarks = new char[] { '.', ',', '!', '?', ':', '(', ')', '\'', '"', ';' };
+
+		public Task<string> RemoveAllSeparatorsParallelAsync(string text)
 		{
-			throw new NotImplementedException();
+			return Task.Run(() =>
+			{
+				var textChars = text.ToCharArray();
+				var filter = textChars.AsParallel().AsOrdered().Where(symbol => !Char.IsPunctuation(symbol));
+				var result = new String(filter.ToArray());
+				return result;
+			});
 		}
 
-		public Task RemoveWordsAsync(string text, int LetterCount)
+		public Task<string> RemoveWordsParallelAsync(string text, int lettersCount)
 		{
-			throw new NotImplementedException();
+			return Task.Run(() =>
+			{
+				var stringBuilder = new StringBuilder(text);
+				var i = 0;
+				var wordLength = 1;
+
+				while (i < stringBuilder.Length)
+				{
+					if (!Char.IsLetter(stringBuilder[i]))
+					{
+						i++;
+					}
+					else
+					{
+						for (int j = 0; j < lettersCount && (i + j + 1) < stringBuilder.Length; j++)
+						{
+							if (Char.IsLetter(stringBuilder[i + j + 1]))
+							{
+								wordLength++;
+							}
+							else
+							{
+								break;
+							}
+						}
+
+						if (wordLength < lettersCount)
+						{
+							stringBuilder.Remove(i, wordLength);
+						}
+						else
+						{
+							i += wordLength;
+						}
+
+						wordLength = 1;
+					}
+				}
+
+				return stringBuilder.ToString();
+			});
 		}
 	}
 }
