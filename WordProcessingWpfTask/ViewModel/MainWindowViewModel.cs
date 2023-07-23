@@ -21,7 +21,7 @@ namespace WordProcessingWpfTask.ViewModel
 			CurrentText = "File => Open => Choose and open file...";
 			_redactor = redactor;
 			OpenAsync = new AsyncCommand(OnOpenExecutedAsync);
-			RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync);
+			RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync, OnRemoveWordsCanExecuted);
 			RemoveSeparatorsAsync = new AsyncCommand(OnRemoveSeparatorExecutedAsync);
 			SaveAsync = new AsyncCommand(OnSaveExecutedAsync);
 		}
@@ -40,19 +40,29 @@ namespace WordProcessingWpfTask.ViewModel
 			}
 		}
 
-		public string LettersCount { get; set; } = "Count of letters";
+		private string _lettersCount { get; set; }
+		public string LettersCount
+		{
+			get => _lettersCount;
+			set
+			{
+				_lettersCount = value;
+				OnPropertyChanged(nameof(LettersCount));
+				RemoveWordsAsync.RaiseCanExecuteChanged();
+			}
+		}
 
-		public IAsyncCommand OpenAsync { get; }
+		public IAsyncCommand OpenAsync { get; set; }
 
-		public IAsyncCommand RemoveWordsAsync { get; }
+		public IAsyncCommand RemoveWordsAsync { get; set; }
 
-		public IAsyncCommand RemoveSeparatorsAsync { get; }
+		public IAsyncCommand RemoveSeparatorsAsync { get; set; }
 
-		public IAsyncCommand SaveAsync { get; }
+		public IAsyncCommand SaveAsync { get; set; }
 
 		public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
 
-		async public Task OnOpenExecutedAsync()
+		async private Task OnOpenExecutedAsync() // диалог окн наруш мввм
 		{
 			OpenFileDialog openFileDialog = new OpenFileDialog();
 			openFileDialog.Title = "Choose file";
@@ -72,26 +82,8 @@ namespace WordProcessingWpfTask.ViewModel
 			}
 		}
 
-		async public Task OnRemoveWordsExecutedAsync()
+		async private Task OnRemoveWordsExecutedAsync() // диалог окн и мессджбокс наруш мввм
 		{
-			if (string.IsNullOrEmpty(LettersCount))
-			{
-				MessageBox.Show("Please, enter count of letters", "Value of letter's count is wrong");
-				return;
-			}
-
-			if (!int.TryParse(LettersCount, out int lettersCount))
-			{
-				MessageBox.Show("Value of letter's count isnt number", "Value of letter's count is wrong");
-				return;
-			}
-
-			if (lettersCount == 0)
-			{
-				MessageBox.Show("Letter's count is zero", "Value of letter's count is wrong");
-				return;
-			}
-
 			var messageBoxResult = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.OK);
 
 			if (messageBoxResult == MessageBoxResult.Cancel)
@@ -100,15 +92,35 @@ namespace WordProcessingWpfTask.ViewModel
 			}
 
 			var temp = CurrentText;
-			temp = await _redactor.RemoveWordsParallelAsync(temp, lettersCount);
+			temp = await _redactor.RemoveWordsParallelAsync(temp, int.Parse(LettersCount));
 
 			CurrentText = null;
 			CurrentText = temp;
 
-			MessageBox.Show($"Worlds with count of letter = {lettersCount} removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
+			MessageBox.Show($"Worlds with count of letter = {LettersCount} removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
 		}
 
-		async public Task OnRemoveSeparatorExecutedAsync()
+		private bool OnRemoveWordsCanExecuted(object obj)
+		{
+			if (string.IsNullOrEmpty(LettersCount))
+			{
+				return false;
+			}
+
+			if (!int.TryParse(LettersCount, out int lettersCount))
+			{
+				return false;
+			}
+
+			if (lettersCount == 0)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		async private Task OnRemoveSeparatorExecutedAsync() // диалог окн и мессджбокс наруш мввм
 		{
 			var messageBoxResult = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.OK);
 
@@ -124,7 +136,7 @@ namespace WordProcessingWpfTask.ViewModel
 			MessageBox.Show("All separators removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
 		}
 
-		async public Task OnSaveExecutedAsync()
+		async private Task OnSaveExecutedAsync() // диалог окн наруш мввм
 		{
 			SaveFileDialog saveFileDialog = new SaveFileDialog()
 			{
