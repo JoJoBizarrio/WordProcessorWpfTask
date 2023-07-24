@@ -143,10 +143,10 @@ namespace WordProcessingWpfTask.ViewModel
 				DefaultExt = ".txt",
 				AddExtension = true,
 				Title = "Save file",
-				CreatePrompt = true,
-				OverwritePrompt = true,
+				CreatePrompt = false,
+				OverwritePrompt = false,
 				Filter = "Text (*.txt)|*.txt|Word (*.docx)|*.docx|All files (*.*)|*.*",
-				InitialDirectory = _filePath
+				InitialDirectory = Environment.CurrentDirectory
 			};
 
 			if (saveFileDialog.ShowDialog() == false)
@@ -156,6 +156,7 @@ namespace WordProcessingWpfTask.ViewModel
 
 			using (var writer = new StreamWriter(new FileStream(saveFileDialog.FileName, FileMode.Create, FileAccess.Write)))
 			{
+				var temp = CurrentText;
 				await writer.WriteAsync(CurrentText);
 			}
 
