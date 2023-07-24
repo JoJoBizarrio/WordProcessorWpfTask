@@ -10,26 +10,26 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using WordProcessingWpfTask.Abstract;
 using WordProcessingWpfTask.Model;
 
 namespace WordProcessingWpfTask.ViewModel
 {
-    internal class MainWindowViewModel : INotifyPropertyChanged
+    internal class MainWindowViewModel : ViewModelBase
     {
         public MainWindowViewModel(IRedactor redactor)
         {
-            CurrentText = "File => Open => Choose and open file...";
             _redactor = redactor;
             OpenAsync = new AsyncCommand(OnOpenExecutedAsync);
             RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync, OnRemoveWordsCanExecuted);
-            RemoveSeparatorsAsync = new AsyncCommand(OnRemoveSeparatorExecutedAsync);
+            RemoveMarksAsync = new AsyncCommand(OnRemoveMarksExecutedAsync);
             SaveAsync = new AsyncCommand(OnSaveExecutedAsync);
         }
 
         private readonly IRedactor _redactor;
 
-        private string _filePath { get; set; }
-        private string _currentText { get; set; }
+        public string FilePath { get; private set; }
+        private string _currentText { get; set; } = "File => Open => Choose and open file...";
         public string CurrentText
         {
             get => _currentText;
@@ -56,7 +56,7 @@ namespace WordProcessingWpfTask.ViewModel
 
         public IAsyncCommand RemoveWordsAsync { get; set; }
 
-        public IAsyncCommand RemoveSeparatorsAsync { get; set; }
+        public IAsyncCommand RemoveMarksAsync { get; set; }
 
         public IAsyncCommand SaveAsync { get; set; }
 
@@ -64,40 +64,33 @@ namespace WordProcessingWpfTask.ViewModel
 
         async private Task OnOpenExecutedAsync() // диалог окн наруш мввм
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Choose file";
-            openFileDialog.InitialDirectory = Environment.CurrentDirectory;
-            openFileDialog.Filter = "Text (*.txt)|*.txt|Word (*.docx)|*.docx|All files (*.*)|*.*";
+            //OpenFileDialog openFileDialog = new OpenFileDialog();
+            //openFileDialog.Title = "Choose file";
+            //openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+            //openFileDialog.Filter = "Text (*.txt)|*.txt|Word (*.docx)|*.docx|All files (*.*)|*.*";
 
-            if (openFileDialog.ShowDialog() == false)
-            {
-                return;
-            }
+            //if (openFileDialog.ShowDialog() == false)
+            //{
+            //    return;
+            //}
 
-            using (StreamReader streamReader = new StreamReader(openFileDialog.FileName))
-            {
-                _filePath = openFileDialog.FileName;
-                CurrentText = null;
-                CurrentText = await streamReader.ReadToEndAsync();
-            }
+            //using (StreamReader streamReader = new StreamReader(openFileDialog.FileName))
+            //{
+            //    FilePath = openFileDialog.FileName;
+            //    CurrentText = null;
+            //    CurrentText = await streamReader.ReadToEndAsync();
+            //}
         }
 
         async private Task OnRemoveWordsExecutedAsync() // диалог окн и мессджбокс наруш мввм
         {
-            var messageBoxResult = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.OK);
-
-            if (messageBoxResult == MessageBoxResult.Cancel)
-            {
-                return;
-            }
-
             var temp = CurrentText;
             temp = await _redactor.RemoveWordsParallelAsync(temp, int.Parse(LettersCount));
 
             CurrentText = null;
             CurrentText = temp;
 
-            MessageBox.Show($"Worlds with count of letter = {LettersCount} removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
+            MessageBox.Show($"Words with count of letter = {LettersCount} removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
         }
 
         private bool OnRemoveWordsCanExecuted(object obj)
@@ -120,18 +113,11 @@ namespace WordProcessingWpfTask.ViewModel
             return true;
         }
 
-        async private Task OnRemoveSeparatorExecutedAsync() // диалог окн и мессджбокс наруш мввм
+        async private Task OnRemoveMarksExecutedAsync() // диалог окн и мессджбокс наруш мввм
         {
-            var messageBoxResult = MessageBox.Show("Are you sure?", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.OK);
-
-            if (messageBoxResult == MessageBoxResult.Cancel)
-            {
-                return;
-            }
-
             var temp = CurrentText;
             CurrentText = null;
-            CurrentText = await _redactor.RemoveAllSeparatorsParallelAsync(temp);
+            CurrentText = await _redactor.RemoveAllMarksParallelAsync(temp);
 
             MessageBox.Show("All separators removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
         }
@@ -149,9 +135,9 @@ namespace WordProcessingWpfTask.ViewModel
                 InitialDirectory = Environment.CurrentDirectory
             };
 
-            if (!String.IsNullOrEmpty(_filePath))
+            if (!String.IsNullOrEmpty(FilePath))
             {
-                saveFileDialog.InitialDirectory = _filePath;
+                saveFileDialog.InitialDirectory = FilePath;
             }
 
             if (saveFileDialog.ShowDialog() == false)
@@ -165,14 +151,28 @@ namespace WordProcessingWpfTask.ViewModel
                 await writer.WriteAsync(CurrentText);
             }
 
-            _filePath = saveFileDialog.FileName;
+            FilePath = saveFileDialog.FileName;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        async public Task OpenFileAsync(string filePath)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            using (StreamReader streamReader = new StreamReader(filePath))
+            {
+                FilePath = filePath;
+                CurrentText = null;
+                CurrentText = await streamReader.ReadToEndAsync();
+            }
+        }
+
+        async public Task SaveFileAsync(string filePath)
+        {
+            using (var writer = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
+            {
+                var temp = CurrentText;
+                await writer.WriteAsync(CurrentText);
+            }
+
+            FilePath = filePath;
         }
     }
 }

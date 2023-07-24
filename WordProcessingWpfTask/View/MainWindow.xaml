@@ -11,10 +11,11 @@
     <DockPanel >
         <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem Header="Open" Command="{Binding OpenAsync}"/>
+                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click"/>
                 <Separator/>
-                <MenuItem Header="Save" Command="{Binding SaveAsync}"/>
-                <MenuItem Header="Quit" Command="{Binding Quit}"/>
+                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click"/>
+                <Separator/>
+                <MenuItem x:Name="QuitMenuItem" Header="Quit" Command="{Binding Quit}"/>
             </MenuItem>
 
         </Menu>
@@ -40,9 +41,10 @@
                     <ColumnDefinition Width="133*"/>
                     <ColumnDefinition Width="515*"/>
                 </Grid.ColumnDefinitions>
+
                 <TextBox x:Name="LettersCountTextBox" ToolTip="Count of letters" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" MinWidth="100" Height="21" Width="100" Text="{Binding LettersCount, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button x:Name="RemoveButton" Command="{Binding RemoveWordsAsync}" CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}" Grid.Column="1" Content="Remove words" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="100" MinHeight="21" Height="21" Width="100"/>
-                <Button x:Name="RemoveSeparators" Command="{Binding RemoveSeparatorsAsync}" Grid.Column="2" Content=" Remove marks" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="100" MinHeight="21" Height="21" Width="100"/>
+                <Button x:Name="RemoveWordsButton" Command="{Binding RemoveWordsAsync}" CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}" Grid.Column="1" Content="Remove words" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="100" MinHeight="21" Height="21" Width="100"/>
+                <Button x:Name="RemoveMarksButton" Command="{Binding RemoveMarksAsync}" Grid.Column="2" Content="Remove marks" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="100" MinHeight="21" Height="21" Width="100"/>
 
                 <!--<CheckBox x:Name="IsNeedRemoveSeparatorsCheckBox" IsChecked="{Binding IsNeedRemoveSeparators, Mode=OneWayToSource}" Content="Remove separators?" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>-->
                 <!--<Button x:Name="MultiBind" >
