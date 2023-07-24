@@ -1,12 +1,5 @@
 ﻿using AsyncAwaitBestPractices.MVVM;
-using Microsoft.Win32;
-using System;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -20,10 +13,8 @@ namespace WordProcessingWpfTask.ViewModel
         public MainWindowViewModel(IRedactor redactor)
         {
             _redactor = redactor;
-            OpenAsync = new AsyncCommand(OnOpenExecutedAsync);
             RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync, OnRemoveWordsCanExecuted);
             RemoveMarksAsync = new AsyncCommand(OnRemoveMarksExecutedAsync);
-            SaveAsync = new AsyncCommand(OnSaveExecutedAsync);
         }
 
         private readonly IRedactor _redactor;
@@ -52,35 +43,12 @@ namespace WordProcessingWpfTask.ViewModel
             }
         }
 
-        public IAsyncCommand OpenAsync { get; set; }
-
         public IAsyncCommand RemoveWordsAsync { get; set; }
 
         public IAsyncCommand RemoveMarksAsync { get; set; }
 
-        public IAsyncCommand SaveAsync { get; set; }
-
         public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
 
-        async private Task OnOpenExecutedAsync() // диалог окн наруш мввм
-        {
-            //OpenFileDialog openFileDialog = new OpenFileDialog();
-            //openFileDialog.Title = "Choose file";
-            //openFileDialog.InitialDirectory = Environment.CurrentDirectory;
-            //openFileDialog.Filter = "Text (*.txt)|*.txt|Word (*.docx)|*.docx|All files (*.*)|*.*";
-
-            //if (openFileDialog.ShowDialog() == false)
-            //{
-            //    return;
-            //}
-
-            //using (StreamReader streamReader = new StreamReader(openFileDialog.FileName))
-            //{
-            //    FilePath = openFileDialog.FileName;
-            //    CurrentText = null;
-            //    CurrentText = await streamReader.ReadToEndAsync();
-            //}
-        }
 
         async private Task OnRemoveWordsExecutedAsync() // диалог окн и мессджбокс наруш мввм
         {
@@ -120,38 +88,6 @@ namespace WordProcessingWpfTask.ViewModel
             CurrentText = await _redactor.RemoveAllMarksParallelAsync(temp);
 
             MessageBox.Show("All separators removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
-        }
-
-        async private Task OnSaveExecutedAsync() // диалог окн наруш мввм
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog()
-            {
-                DefaultExt = ".txt",
-                AddExtension = true,
-                Title = "Save file",
-                CreatePrompt = false,
-                OverwritePrompt = false,
-                Filter = "Text (*.txt)|*.txt|Word (*.docx)|*.docx|All files (*.*)|*.*",
-                InitialDirectory = Environment.CurrentDirectory
-            };
-
-            if (!String.IsNullOrEmpty(FilePath))
-            {
-                saveFileDialog.InitialDirectory = FilePath;
-            }
-
-            if (saveFileDialog.ShowDialog() == false)
-            {
-                return;
-            }
-
-            using (var writer = new StreamWriter(new FileStream(saveFileDialog.FileName, FileMode.Create, FileAccess.Write)))
-            {
-                var temp = CurrentText;
-                await writer.WriteAsync(CurrentText);
-            }
-
-            FilePath = saveFileDialog.FileName;
         }
 
         async public Task OpenFileAsync(string filePath)
