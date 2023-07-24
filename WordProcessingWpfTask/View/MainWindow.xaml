@@ -32,7 +32,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding CurrentText, Mode=TwoWay}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontSize="16"/>
+                <TextBox Text="{Binding CurrentText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontSize="16"/>
             </Grid>
             <Grid Background="#FFF6BFBF" Grid.Row="1" Margin="5,5,5,5">
                 <Grid.ColumnDefinitions>
