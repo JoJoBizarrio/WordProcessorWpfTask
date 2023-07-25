@@ -23,7 +23,7 @@ namespace WordProcessingWpfTask.ViewModel
 			Clear = new RelayCommand(OnClearExecuted);
 
 			MyOC = new ObservableCollection<TextFile>();
-			MyOC.Add(new TextFile() { Title = "MyName", Text = "MyText" });
+			MyOC.Add(new TextFile() { Title = "MyName", Text = "MyText", PathFile="MyPath"});
 		}
 
 		private readonly IRedactor _redactor;
@@ -47,6 +47,16 @@ namespace WordProcessingWpfTask.ViewModel
 				Set(ref _lettersCount, value);
 				RemoveWordsAsync.RaiseCanExecuteChanged();
 			}
+		}
+
+		private TextFile _sf;
+		public TextFile SelectedFile 
+		{
+			get => _sf;
+			set 
+			{
+				_sf = value;
+			} 
 		}
 
 		// Remove Opeartion

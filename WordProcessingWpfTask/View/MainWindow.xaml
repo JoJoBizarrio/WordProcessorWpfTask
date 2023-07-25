@@ -43,7 +43,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TabControl ItemsSource="{Binding MyOC}">
+                <TabControl ItemsSource="{Binding MyOC}" SelectedItem="{Binding SelectedFile, Mode=OneWayToSource}">
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Title}"></TextBlock>
