@@ -15,30 +15,28 @@ namespace WordProcessingWpfTask.ViewModel
             _redactor = redactor;
             RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync, OnRemoveWordsCanExecuted);
             RemoveMarksAsync = new AsyncCommand(OnRemoveMarksExecutedAsync);
+            Clear = new RelayCommand(OnClearExecuted);
+            //Test = new RelayCommand(OnTest);
         }
 
         private readonly IRedactor _redactor;
 
         public string FilePath { get; private set; }
-        private string _currentText { get; set; } = "File => Open => Choose and open file...";
+        private string _currentText = "File => Open => Choose and open file...";
         public string CurrentText
         {
             get => _currentText;
-            set
-            {
-                _currentText = value;
-                OnPropertyChanged(nameof(CurrentText));
-            }
+            set => Set(ref _currentText, value);
+
         }
 
-        private string _lettersCount { get; set; }
+        private string _lettersCount;
         public string LettersCount
         {
             get => _lettersCount;
             set
             {
-                _lettersCount = value;
-                OnPropertyChanged(nameof(LettersCount));
+                Set(ref _lettersCount, value);
                 RemoveWordsAsync.RaiseCanExecuteChanged();
             }
         }
@@ -47,18 +45,12 @@ namespace WordProcessingWpfTask.ViewModel
 
         public IAsyncCommand RemoveMarksAsync { get; set; }
 
-        public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
-
-
         async private Task OnRemoveWordsExecutedAsync() // диалог окн и мессджбокс наруш мввм
         {
             var temp = CurrentText;
             temp = await _redactor.RemoveWordsParallelAsync(temp, int.Parse(LettersCount));
 
-            CurrentText = null;
             CurrentText = temp;
-
-            MessageBox.Show($"Words with count of letter = {LettersCount} removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
         }
 
         private bool OnRemoveWordsCanExecuted(object obj)
@@ -84,7 +76,6 @@ namespace WordProcessingWpfTask.ViewModel
         async private Task OnRemoveMarksExecutedAsync() // диалог окн и мессджбокс наруш мввм
         {
             var temp = CurrentText;
-            CurrentText = null;
             CurrentText = await _redactor.RemoveAllMarksParallelAsync(temp);
 
             MessageBox.Show("All separators removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
@@ -95,8 +86,8 @@ namespace WordProcessingWpfTask.ViewModel
             using (StreamReader streamReader = new StreamReader(filePath))
             {
                 FilePath = filePath;
-                CurrentText = null;
-                CurrentText = await streamReader.ReadToEndAsync();
+                var temp = await streamReader.ReadToEndAsync();
+                CurrentText = temp;
             }
         }
 
@@ -104,11 +95,43 @@ namespace WordProcessingWpfTask.ViewModel
         {
             using (var writer = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
             {
-                var temp = CurrentText;
                 await writer.WriteAsync(CurrentText);
             }
 
             FilePath = filePath;
         }
+
+
+        // supporting
+        public ICommand Clear { get; set; }
+
+        public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
+
+        public void OnClearExecuted(object obj)
+        {
+            CurrentText = null;
+        }
+
+        private RelayCommand _test;
+
+        public RelayCommand Test { 
+            get 
+            {
+                if (_test != null)
+                {
+                    return _test;
+                }
+
+                return _test = new RelayCommand(obj =>
+                {
+                    MessageBox.Show($"Test {obj}", "alert");
+                });
+            }
+        }
+
+        //private void OnTest(object p)
+        //{
+        //    MessageBox.Show($"Test {p}", "alert");
+        //}
     }
 }

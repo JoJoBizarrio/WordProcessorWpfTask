@@ -12,32 +12,24 @@ namespace WordProcessingWpfTask.View
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static string _filter = "Text (*.txt)|*.txt|Word (*.docx)|*.docx|All files (*.*)|*.*";
-
-        private OpenFileDialog _openFileDialog = new OpenFileDialog()
+        public string MyProp
         {
-            Title = "Choose file",
-            InitialDirectory = Environment.CurrentDirectory,
-            Filter = _filter
-        };
+            get => (string)GetValue(MyPropDP);
+            set => SetValue(MyPropDP, value);
+        }
 
-        private SaveFileDialog _saveFileDialog = new SaveFileDialog()
-        {
-            Title = "Save file",
-            DefaultExt = ".txt",
-            AddExtension = true,
-            CreatePrompt = false,
-            OverwritePrompt = false,
-            Filter = _filter,
-            InitialDirectory = Environment.CurrentDirectory
-        };
+        public static readonly DependencyProperty MyPropDP = DependencyProperty.Register(
+            nameof(MyProp),
+            typeof(string),
+            typeof(MainWindow),
+            new PropertyMetadata(default(string)));
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        async private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+        async private void OpenMenuItem_Click(object sender, RoutedEventArgs e) // after takeout UIDialog here maybe got memory leak
         {
             if (DataContext == null)
             {
@@ -46,20 +38,21 @@ namespace WordProcessingWpfTask.View
 
             var dataContext = (MainWindowViewModel)DataContext;
 
-            if (!String.IsNullOrEmpty(dataContext.FilePath))
+            var openFileDialog = new OpenFileDialog()
             {
-                _openFileDialog.InitialDirectory = dataContext.FilePath;
-            }
+                Title = "Choose file",
+                Filter = "Text (*.txt)|*.txt|All files (*.*)|*.*"
+            };
 
-            if (_openFileDialog.ShowDialog() == false)
+            if (openFileDialog.ShowDialog() == false)
             {
                 return;
             }
 
-            await dataContext.OpenFileAsync(_openFileDialog.FileName);
+            await dataContext.OpenFileAsync(openFileDialog.FileName);
         }
 
-        async private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
+        async private void SaveMenuItem_Click(object sender, RoutedEventArgs e) // after takeout UIDialog here maybe got memory leak
         {
             if (DataContext == null)
             {
@@ -68,17 +61,27 @@ namespace WordProcessingWpfTask.View
 
             var dataContext = (MainWindowViewModel)DataContext;
 
-            if (!String.IsNullOrEmpty(dataContext.FilePath))
+            var saveFileDialog = new SaveFileDialog()
             {
-                _saveFileDialog.InitialDirectory = dataContext.FilePath;
-            }
+                Title = "Save file",
+                DefaultExt = ".txt",
+                AddExtension = true,
+                CreatePrompt = false,
+                OverwritePrompt = false,
+                Filter = "Text (*.txt)|*.txt|All files (*.*)|*.*"
+            };
 
-            if (_saveFileDialog.ShowDialog() == false)
+            if (saveFileDialog.ShowDialog() == false)
             {
                 return;
             }
 
-            await dataContext.SaveFileAsync(_saveFileDialog.FileName);
+            await dataContext.SaveFileAsync(saveFileDialog.FileName);
+        }
+
+        private void Test_Click(object sender, RoutedEventArgs e)
+        {
+            MyProp = "test click";
         }
     }
 }
