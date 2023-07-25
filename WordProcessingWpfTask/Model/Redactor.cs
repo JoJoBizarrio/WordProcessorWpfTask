@@ -13,7 +13,7 @@ namespace WordProcessingWpfTask.Model
 
         //private readonly char[] _punctuationMarks = new char[] { '.', ',', '!', '?', ':', '(', ')', '\'', '"', ';' };
 
-        public Task<string> RemoveAllSeparatorsParallelAsync(string text)
+        public Task<string> RemoveAllMarksParallelAsync(string text)
         {
             return Task.Run(() =>
             {

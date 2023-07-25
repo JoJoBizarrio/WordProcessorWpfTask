@@ -10,6 +10,6 @@ namespace WordProcessingWpfTask.Model
 	{
 		Task<string> RemoveWordsParallelAsync(string text, int letterCount);
 
-		Task<string> RemoveAllSeparatorsParallelAsync(string text);
+		Task<string> RemoveAllMarksParallelAsync(string text);
 	}
 }

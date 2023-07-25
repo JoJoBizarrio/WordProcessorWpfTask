@@ -3,20 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WordProcessingWpfTask.View"
+        xmlns:views="clr-namespace:WordProcessingWpfTask.View"
         xmlns:vm="clr-namespace:WordProcessingWpfTask.ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-
+        Title="MainWindow" Height="450" Width="800"
+        x:Name="RedactorMainWindow">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="MinHeight" Value="21"></Setter>
+            <Setter Property="MinWidth" Value="120"></Setter>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
     <DockPanel >
         <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem Header="Open" Command="{Binding OpenAsync}"/>
+                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding OpenAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}" />
                 <Separator/>
-                <MenuItem Header="Save" Command="{Binding SaveAsync}"/>
-                <MenuItem Header="Quit" Command="{Binding Quit}"/>
+                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding SaveAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}"/>
+                <Separator/>
+                <MenuItem x:Name="ClearMenuItem" Header="Clear" Command="{Binding Clear}"/>
+                <MenuItem x:Name="QuitMenuItem" Header="Quit" Command="{Binding Quit}"/>
             </MenuItem>
-
         </Menu>
 
         <Grid>
@@ -28,32 +39,23 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <Grid Background="#FFDADADA" Margin="5,5,5,5">
+            <Grid Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <TextBox Text="{Binding CurrentText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontSize="16"/>
             </Grid>
-            <Grid Background="#FFF6BFBF" Grid.Row="1" Margin="5,5,5,5">
+            <Grid Grid.Row="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="142*"/>
                     <ColumnDefinition Width="133*"/>
                     <ColumnDefinition Width="515*"/>
                 </Grid.ColumnDefinitions>
+
                 <TextBox x:Name="LettersCountTextBox" ToolTip="Count of letters" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" MinWidth="100" Height="21" Width="100" Text="{Binding LettersCount, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button x:Name="RemoveButton" Command="{Binding RemoveWordsAsync}" CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}" Grid.Column="1" Content="Remove words" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="100" MinHeight="21" Height="21" Width="100"/>
-                <Button x:Name="RemoveSeparators" Command="{Binding RemoveSeparatorsAsync}" Grid.Column="2" Content=" Remove marks" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="100" MinHeight="21" Height="21" Width="100"/>
-
-                <!--<CheckBox x:Name="IsNeedRemoveSeparatorsCheckBox" IsChecked="{Binding IsNeedRemoveSeparators, Mode=OneWayToSource}" Content="Remove separators?" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>-->
-                <!--<Button x:Name="MultiBind" >
-                    <MultiBinding>
-                        <Binding ElementName="LetterCountTextBox" Path="Text"/>
-                        <Binding ElementName="IsNeedRemoveSeparatorsCheckBox" Path="IsChecked"/>
-                    </MultiBinding>
-                </Button>-->
+                <Button x:Name="RemoveWordsButton" Command="{Binding RemoveWordsAsync}" CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}" Grid.Column="1" Content="Remove words" />
+                <Button x:Name="RemoveMarksButton" Command="{Binding RemoveMarksAsync}" Grid.Column="2" Content="Remove marks"  Width="100"/>
             </Grid>
-
         </Grid>
     </DockPanel>
-
 </Window>
