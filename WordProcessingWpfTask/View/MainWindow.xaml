@@ -21,14 +21,10 @@
     <DockPanel >
         <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click"/>
+                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding OpenAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}" />
                 <Separator/>
-                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click"/>
+                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding SaveAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}"/>
                 <Separator/>
-                <MenuItem x:Name="Test" Header="Test" 
-                          Command="{Binding Test}" 
-                          CommandParameter="{Binding MyProp, ElementName=RedactorMainWindow}" 
-                          Click="Test_Click"></MenuItem>
                 <MenuItem x:Name="ClearMenuItem" Header="Clear" Command="{Binding Clear}"/>
                 <MenuItem x:Name="QuitMenuItem" Header="Quit" Command="{Binding Quit}"/>
             </MenuItem>

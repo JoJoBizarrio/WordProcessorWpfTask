@@ -15,13 +15,17 @@ namespace WordProcessingWpfTask.ViewModel
             _redactor = redactor;
             RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync, OnRemoveWordsCanExecuted);
             RemoveMarksAsync = new AsyncCommand(OnRemoveMarksExecutedAsync);
+
+            OpenAsync = new RelayCommand(async obj => await OnOpenExecutedAsync(obj));
+            SaveAsync = new RelayCommand(async obj => await OnSaveExecutedAsync(obj));
+
             Clear = new RelayCommand(OnClearExecuted);
-            //Test = new RelayCommand(OnTest);
         }
 
         private readonly IRedactor _redactor;
 
         public string FilePath { get; private set; }
+
         private string _currentText = "File => Open => Choose and open file...";
         public string CurrentText
         {
@@ -41,11 +45,12 @@ namespace WordProcessingWpfTask.ViewModel
             }
         }
 
+        // Remove Opeartion
         public IAsyncCommand RemoveWordsAsync { get; set; }
 
         public IAsyncCommand RemoveMarksAsync { get; set; }
 
-        async private Task OnRemoveWordsExecutedAsync() // диалог окн и мессджбокс наруш мввм
+        async private Task OnRemoveWordsExecutedAsync()
         {
             var temp = CurrentText;
             temp = await _redactor.RemoveWordsParallelAsync(temp, int.Parse(LettersCount));
@@ -73,34 +78,40 @@ namespace WordProcessingWpfTask.ViewModel
             return true;
         }
 
-        async private Task OnRemoveMarksExecutedAsync() // диалог окн и мессджбокс наруш мввм
+        async private Task OnRemoveMarksExecutedAsync()
         {
             var temp = CurrentText;
             CurrentText = await _redactor.RemoveAllMarksParallelAsync(temp);
-
-            MessageBox.Show("All separators removed", "Done", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
         }
 
-        async public Task OpenFileAsync(string filePath)
+        // logic of save file
+        //TODO: separate from VM
+        public RelayCommand OpenAsync { get; set; }
+        public RelayCommand SaveAsync { get; set; }
+
+        async private Task OnOpenExecutedAsync(object obj)
         {
-            using (StreamReader streamReader = new StreamReader(filePath))
+            if (obj is string filePath)
             {
-                FilePath = filePath;
-                var temp = await streamReader.ReadToEndAsync();
-                CurrentText = temp;
+                using (StreamReader streamReader = new StreamReader(filePath))
+                {
+                    FilePath = filePath;
+                    var temp = await streamReader.ReadToEndAsync();
+                    CurrentText = temp;
+                }
             }
         }
 
-        async public Task SaveFileAsync(string filePath)
+        async private Task OnSaveExecutedAsync(object obj)
         {
-            using (var writer = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
+            if (obj is string filePath)
             {
-                await writer.WriteAsync(CurrentText);
+                using (var writer = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
+                {
+                    await writer.WriteAsync(CurrentText);
+                }
             }
-
-            FilePath = filePath;
         }
-
 
         // supporting
         public ICommand Clear { get; set; }
@@ -111,27 +122,5 @@ namespace WordProcessingWpfTask.ViewModel
         {
             CurrentText = null;
         }
-
-        private RelayCommand _test;
-
-        public RelayCommand Test { 
-            get 
-            {
-                if (_test != null)
-                {
-                    return _test;
-                }
-
-                return _test = new RelayCommand(obj =>
-                {
-                    MessageBox.Show($"Test {obj}", "alert");
-                });
-            }
-        }
-
-        //private void OnTest(object p)
-        //{
-        //    MessageBox.Show($"Test {p}", "alert");
-        //}
     }
 }
