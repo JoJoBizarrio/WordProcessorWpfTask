@@ -43,7 +43,19 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding CurrentText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontSize="16"/>
+                <TabControl ItemsSource="{Binding MyOC}">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Title}"></TextBlock>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Text}" TextWrapping="Wrap" Margin="3"></TextBox>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                    
+                </TabControl>
             </Grid>
             <Grid Grid.Row="1" Margin="5">
                 <Grid.ColumnDefinitions>

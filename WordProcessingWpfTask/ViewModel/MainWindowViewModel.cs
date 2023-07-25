@@ -1,4 +1,5 @@
 ﻿using AsyncAwaitBestPractices.MVVM;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,119 +9,124 @@ using WordProcessingWpfTask.Model;
 
 namespace WordProcessingWpfTask.ViewModel
 {
-    internal class MainWindowViewModel : ViewModelBase
-    {
-        public MainWindowViewModel(IRedactor redactor)
-        {
-            _redactor = redactor;
-            RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync, OnRemoveWordsCanExecuted);
-            RemoveMarksAsync = new AsyncCommand(OnRemoveMarksExecutedAsync);
+	internal class MainWindowViewModel : ViewModelBase
+	{
+		public MainWindowViewModel(IRedactor redactor)
+		{
+			_redactor = redactor;
+			RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync, OnRemoveWordsCanExecuted);
+			RemoveMarksAsync = new AsyncCommand(OnRemoveMarksExecutedAsync);
 
-            OpenAsync = new RelayCommand(async obj => await OnOpenExecutedAsync(obj));
-            SaveAsync = new RelayCommand(async obj => await OnSaveExecutedAsync(obj));
+			OpenAsync = new RelayCommand(async obj => await OnOpenExecutedAsync(obj));
+			SaveAsync = new RelayCommand(async obj => await OnSaveExecutedAsync(obj));
 
-            Clear = new RelayCommand(OnClearExecuted);
-        }
+			Clear = new RelayCommand(OnClearExecuted);
 
-        private readonly IRedactor _redactor;
+			MyOC = new ObservableCollection<TextFile>();
+			MyOC.Add(new TextFile() { Title = "MyName", Text = "MyText" });
+		}
 
-        public string FilePath { get; private set; }
+		private readonly IRedactor _redactor;
 
-        private string _currentText = "File => Open => Choose and open file...";
-        public string CurrentText
-        {
-            get => _currentText;
-            set => Set(ref _currentText, value);
+		public string FilePath { get; private set; }
 
-        }
+		private string _currentText = "File => Open => Choose and open file...";
+		public string CurrentText
+		{
+			get => _currentText;
+			set => Set(ref _currentText, value);
 
-        private string _lettersCount;
-        public string LettersCount
-        {
-            get => _lettersCount;
-            set
-            {
-                Set(ref _lettersCount, value);
-                RemoveWordsAsync.RaiseCanExecuteChanged();
-            }
-        }
+		}
 
-        // Remove Opeartion
-        public IAsyncCommand RemoveWordsAsync { get; set; }
+		private string _lettersCount;
+		public string LettersCount
+		{
+			get => _lettersCount;
+			set
+			{
+				Set(ref _lettersCount, value);
+				RemoveWordsAsync.RaiseCanExecuteChanged();
+			}
+		}
 
-        public IAsyncCommand RemoveMarksAsync { get; set; }
+		// Remove Opeartion
+		public IAsyncCommand RemoveWordsAsync { get; set; }
 
-        async private Task OnRemoveWordsExecutedAsync()
-        {
-            var temp = CurrentText;
-            temp = await _redactor.RemoveWordsParallelAsync(temp, int.Parse(LettersCount));
+		public IAsyncCommand RemoveMarksAsync { get; set; }
 
-            CurrentText = temp;
-        }
+		async private Task OnRemoveWordsExecutedAsync()
+		{
+			var temp = CurrentText;
+			temp = await _redactor.RemoveWordsParallelAsync(temp, int.Parse(LettersCount));
 
-        private bool OnRemoveWordsCanExecuted(object obj)
-        {
-            if (string.IsNullOrEmpty(LettersCount))
-            {
-                return false;
-            }
+			CurrentText = temp;
+		}
 
-            if (!int.TryParse(LettersCount, out int lettersCount))
-            {
-                return false;
-            }
+		private bool OnRemoveWordsCanExecuted(object obj)
+		{
+			if (string.IsNullOrEmpty(LettersCount))
+			{
+				return false;
+			}
 
-            if (lettersCount == 0)
-            {
-                return false;
-            }
+			if (!int.TryParse(LettersCount, out int lettersCount))
+			{
+				return false;
+			}
 
-            return true;
-        }
+			if (lettersCount == 0)
+			{
+				return false;
+			}
 
-        async private Task OnRemoveMarksExecutedAsync()
-        {
-            var temp = CurrentText;
-            CurrentText = await _redactor.RemoveAllMarksParallelAsync(temp);
-        }
+			return true;
+		}
 
-        // logic of save file
-        //TODO: separate from VM
-        public RelayCommand OpenAsync { get; set; }
-        public RelayCommand SaveAsync { get; set; }
+		async private Task OnRemoveMarksExecutedAsync()
+		{
+			var temp = CurrentText;
+			CurrentText = await _redactor.RemoveAllMarksParallelAsync(temp);
+		}
 
-        async private Task OnOpenExecutedAsync(object obj)
-        {
-            if (obj is string filePath)
-            {
-                using (StreamReader streamReader = new StreamReader(filePath))
-                {
-                    FilePath = filePath;
-                    var temp = await streamReader.ReadToEndAsync();
-                    CurrentText = temp;
-                }
-            }
-        }
+		// logic of save file
+		//TODO: separate from VM
+		public RelayCommand OpenAsync { get; set; }
+		public RelayCommand SaveAsync { get; set; }
 
-        async private Task OnSaveExecutedAsync(object obj)
-        {
-            if (obj is string filePath)
-            {
-                using (var writer = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
-                {
-                    await writer.WriteAsync(CurrentText);
-                }
-            }
-        }
+		async private Task OnOpenExecutedAsync(object obj)
+		{
+			if (obj is string filePath)
+			{
+				using (StreamReader streamReader = new StreamReader(filePath))
+				{
+					FilePath = filePath;
+					var temp = await streamReader.ReadToEndAsync();
+					CurrentText = temp;
+				}
+			}
+		}
 
-        // supporting
-        public ICommand Clear { get; set; }
+		async private Task OnSaveExecutedAsync(object obj)
+		{
+			if (obj is string filePath)
+			{
+				using (var writer = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
+				{
+					await writer.WriteAsync(CurrentText);
+				}
+			}
+		}
 
-        public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
+		// supporting
+		public ICommand Clear { get; set; }
 
-        public void OnClearExecuted(object obj)
-        {
-            CurrentText = null;
-        }
-    }
+		public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
+
+		public void OnClearExecuted(object obj)
+		{
+			CurrentText = null;
+		}
+
+		public ObservableCollection<TextFile> MyOC { get; set; }
+	}
 }
