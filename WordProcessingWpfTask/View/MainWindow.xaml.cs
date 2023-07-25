@@ -1,28 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
+using System;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Microsoft.Win32;
+using WordProcessingWpfTask.Abstract;
+using WordProcessingWpfTask.ViewModel;
 
 namespace WordProcessingWpfTask.View
 {
-	/// <summary>
-	/// Логика взаимодействия для MainWindow.xaml
-	/// </summary>
-	public partial class MainWindow : Window
-	{
-		public MainWindow()
-		{
-			InitializeComponent();
-		}
-	}
+    /// <summary>
+    /// Логика взаимодействия для MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        public string FilePath
+        {
+            get => (string)GetValue(FilePathProperty);
+            set => SetValue(FilePathProperty, value);
+        }
+
+        public static readonly DependencyProperty FilePathProperty = DependencyProperty.Register(
+            nameof(FilePath),
+            typeof(string),
+            typeof(MainWindow),
+            new PropertyMetadata(default(string)));
+
+        private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog()
+            {
+                Title = "Choose file",
+                Filter = "Text (*.txt)|*.txt|All files (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                FilePath = openFileDialog.FileName;
+            }
+            else
+            {
+                FilePath = null;
+            }
+        }
+
+        private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var saveFileDialog = new SaveFileDialog()
+            {
+                Title = "Save file",
+                DefaultExt = ".txt",
+                AddExtension = true,
+                CreatePrompt = false,
+                OverwritePrompt = false,
+                Filter = "Text (*.txt)|*.txt|All files (*.*)|*.*"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                FilePath = saveFileDialog.FileName;
+            }
+            else
+            {
+                FilePath = null;
+            }
+        }
+    }
 }
