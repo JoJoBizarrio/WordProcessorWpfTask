@@ -98,18 +98,7 @@ namespace WordProcessingWpfTask.ViewModel
 		{
 			if (obj is string filePath)
 			{
-				using (StreamReader streamReader = new StreamReader(filePath))
-				{
-					var temp = await streamReader.ReadToEndAsync();
-					var newTextFile = new TextFile()
-					{
-						Title = filePath.Remove(filePath.LastIndexOf('.')).Substring(filePath.LastIndexOf('\\') + 1),
-						Text = temp,
-						FilePath = filePath
-					};
-
-					TextFilesCollection.Add(newTextFile);
-				}
+				TextFilesCollection.Add(await _redactor.OpenFileAsync(filePath));
 			}
 		}
 
@@ -117,10 +106,7 @@ namespace WordProcessingWpfTask.ViewModel
 		{
 			if (obj is string filePath)
 			{
-				using (var writer = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
-				{
-					await writer.WriteAsync(SelectedTextFile.Text);
-				}
+				await _redactor.SaveFileAsync(filePath, SelectedTextFile.Text);
 			}
 		}
 

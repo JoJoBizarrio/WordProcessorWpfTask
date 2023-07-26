@@ -60,7 +60,9 @@
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding Text}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Margin="3"></TextBox>
+                            <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     VerticalScrollBarVisibility="Auto"
+                                     TextWrapping="Wrap" Margin="3"></TextBox>
                         </DataTemplate>
                     </TabControl.ContentTemplate>
                 </TabControl>
