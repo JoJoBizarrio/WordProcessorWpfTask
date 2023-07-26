@@ -9,7 +9,7 @@
         Title="MainWindow" Height="450" Width="800"
         x:Name="RedactorMainWindow">
     <Window.Resources>
-        <Style TargetType="Button">
+        <Style x:Key="RemoveButton" TargetType="Button">
             <Setter Property="HorizontalAlignment" Value="Center"></Setter>
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
             <Setter Property="MinHeight" Value="21"></Setter>
@@ -43,20 +43,29 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TabControl ItemsSource="{Binding MyOC}" SelectedItem="{Binding SelectedFile, Mode=OneWayToSource}">
+                <TabControl x:Name="RedactorTabControl" 
+                            SelectedIndex="0" 
+                            ItemsSource="{Binding TextFilesCollection}"
+                            SelectedItem="{Binding SelectedTextFile, Mode=TwoWay}">
                     <TabControl.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Title}"></TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Title}" Margin="0,0,5,0"></TextBlock>
+                                <Button Content="x" 
+                                        Width="14"
+                                        Command="{Binding DataContext.Close, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
+                                        CommandParameter="{Binding SelectedItem, ElementName=RedactorTabControl}"></Button>
+                            </StackPanel>
                         </DataTemplate>
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding Text}" TextWrapping="Wrap" Margin="3"></TextBox>
+                            <TextBox Text="{Binding Text}" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Margin="3"></TextBox>
                         </DataTemplate>
                     </TabControl.ContentTemplate>
-                    
                 </TabControl>
             </Grid>
+            
             <Grid Grid.Row="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="142*"/>
@@ -64,9 +73,19 @@
                     <ColumnDefinition Width="515*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBox x:Name="LettersCountTextBox" ToolTip="Count of letters" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" MinWidth="100" Height="21" Width="100" Text="{Binding LettersCount, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button x:Name="RemoveWordsButton" Command="{Binding RemoveWordsAsync}" CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}" Grid.Column="1" Content="Remove words" />
-                <Button x:Name="RemoveMarksButton" Command="{Binding RemoveMarksAsync}" Grid.Column="2" Content="Remove marks"  Width="100"/>
+                <TextBox x:Name="LettersCountTextBox" ToolTip="Count of letters" TextWrapping="Wrap" MinWidth="100" Height="21" Width="100" Text="{Binding LettersCount, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button  x:Name="RemoveWordsButton" 
+                         Style="{StaticResource RemoveButton}" 
+                         Command="{Binding RemoveWordsAsync}"
+                         CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}"
+                         Grid.Column="1" 
+                         Content="Remove words" />
+
+                <Button  x:Name="RemoveMarksButton" 
+                         Style="{StaticResource RemoveButton}" 
+                         Command="{Binding RemoveMarksAsync}" 
+                         Grid.Column="2"
+                         Content="Remove marks"                         />
             </Grid>
         </Grid>
     </DockPanel>

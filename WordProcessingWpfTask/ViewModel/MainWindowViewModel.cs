@@ -1,6 +1,7 @@
 ﻿using AsyncAwaitBestPractices.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -17,26 +18,20 @@ namespace WordProcessingWpfTask.ViewModel
 			RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync, OnRemoveWordsCanExecuted);
 			RemoveMarksAsync = new AsyncCommand(OnRemoveMarksExecutedAsync);
 
-			OpenAsync = new RelayCommand(async obj => await OnOpenExecutedAsync(obj));
-			SaveAsync = new RelayCommand(async obj => await OnSaveExecutedAsync(obj));
+			OpenAsync = new RelayCommand(async obj => await OnOpenExecutedAsync(obj)); // async/await dosnt work here
+			SaveAsync = new RelayCommand(async obj => await OnSaveExecutedAsync(obj)); // async/await dosnt work here
 
 			Clear = new RelayCommand(OnClearExecuted);
 
-			MyOC = new ObservableCollection<TextFile>();
-			MyOC.Add(new TextFile() { Title = "MyName", Text = "MyText", PathFile="MyPath"});
+			TextFilesCollection = new ObservableCollection<TextFile>();
+			TextFilesCollection.Add(new TextFile() { Title = "MyName1", Text = "MyText1", FilePath = "MyPath" });
+			TextFilesCollection.Add(new TextFile() { Title = "MyName2", Text = "MyText2", FilePath = "MyPath" });
 		}
 
 		private readonly IRedactor _redactor;
 
-		public string FilePath { get; private set; }
+		public ObservableCollection<TextFile> TextFilesCollection { get; set; }
 
-		private string _currentText = "File => Open => Choose and open file...";
-		public string CurrentText
-		{
-			get => _currentText;
-			set => Set(ref _currentText, value);
-
-		}
 
 		private string _lettersCount;
 		public string LettersCount
@@ -49,14 +44,11 @@ namespace WordProcessingWpfTask.ViewModel
 			}
 		}
 
-		private TextFile _sf;
-		public TextFile SelectedFile 
+		private TextFile _selectedTextFile;
+		public TextFile SelectedTextFile
 		{
-			get => _sf;
-			set 
-			{
-				_sf = value;
-			} 
+			get => _selectedTextFile;
+			set => Set(ref _selectedTextFile, value);
 		}
 
 		// Remove Opeartion
@@ -66,10 +58,8 @@ namespace WordProcessingWpfTask.ViewModel
 
 		async private Task OnRemoveWordsExecutedAsync()
 		{
-			var temp = CurrentText;
-			temp = await _redactor.RemoveWordsParallelAsync(temp, int.Parse(LettersCount));
-
-			CurrentText = temp;
+			var temp = SelectedTextFile;
+			temp.Text = await _redactor.RemoveWordsParallelAsync(temp.Text, int.Parse(LettersCount));
 		}
 
 		private bool OnRemoveWordsCanExecuted(object obj)
@@ -94,12 +84,13 @@ namespace WordProcessingWpfTask.ViewModel
 
 		async private Task OnRemoveMarksExecutedAsync()
 		{
-			var temp = CurrentText;
-			CurrentText = await _redactor.RemoveAllMarksParallelAsync(temp);
+			var temp = SelectedTextFile;
+			temp.Text = await _redactor.RemoveAllMarksParallelAsync(temp.Text);
 		}
 
 		// logic of save file
 		//TODO: separate from VM
+		//TODO: RelayCommandAsync instead of current
 		public RelayCommand OpenAsync { get; set; }
 		public RelayCommand SaveAsync { get; set; }
 
@@ -109,9 +100,15 @@ namespace WordProcessingWpfTask.ViewModel
 			{
 				using (StreamReader streamReader = new StreamReader(filePath))
 				{
-					FilePath = filePath;
 					var temp = await streamReader.ReadToEndAsync();
-					CurrentText = temp;
+					var newTextFile = new TextFile()
+					{
+						Title = filePath.Remove(filePath.LastIndexOf('.')).Substring(filePath.LastIndexOf('\\') + 1),
+						Text = temp,
+						FilePath = filePath
+					};
+
+					TextFilesCollection.Add(newTextFile);
 				}
 			}
 		}
@@ -122,7 +119,7 @@ namespace WordProcessingWpfTask.ViewModel
 			{
 				using (var writer = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
 				{
-					await writer.WriteAsync(CurrentText);
+					await writer.WriteAsync(SelectedTextFile.Text);
 				}
 			}
 		}
@@ -130,13 +127,25 @@ namespace WordProcessingWpfTask.ViewModel
 		// supporting
 		public ICommand Clear { get; set; }
 
+		private ICommand _close;
+		public ICommand Close
+		{
+			get
+			{
+				if (_close != null)
+				{
+					return _close;
+				}
+
+				return _close = new RelayCommand(p => TextFilesCollection.Remove((TextFile)p));
+			}
+		}
+
 		public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
 
 		public void OnClearExecuted(object obj)
 		{
-			CurrentText = null;
+			SelectedTextFile.Text = null;
 		}
-
-		public ObservableCollection<TextFile> MyOC { get; set; }
 	}
 }
