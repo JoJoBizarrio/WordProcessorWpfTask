@@ -10,6 +10,8 @@ namespace WordProcessingWpfTask.Model
 {
 	internal class TextFile : INotifyPropertyChanged
 	{
+		public Guid Id { get; private set; } = Guid.NewGuid();
+
 		private string _title;
 		public string Title
 		{

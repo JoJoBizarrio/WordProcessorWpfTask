@@ -21,9 +21,9 @@
     <DockPanel >
         <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding OpenAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}" />
+                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding OpenAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow, IsAsync=True}" />
                 <Separator/>
-                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding SaveAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}"/>
+                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding SaveAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow, IsAsync=True}"/>
                 <Separator/>
                 <MenuItem x:Name="ClearMenuItem" Header="Clear" Command="{Binding Clear}"/>
                 <MenuItem x:Name="QuitMenuItem" Header="Quit" Command="{Binding Quit}"/>
@@ -61,13 +61,16 @@
                     <TabControl.ContentTemplate>
                         <DataTemplate>
                             <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     AcceptsReturn="True"
+                                     AcceptsTab="True"
                                      VerticalScrollBarVisibility="Auto"
-                                     TextWrapping="Wrap" Margin="3"></TextBox>
+                                     HorizontalScrollBarVisibility="Auto"
+                                     TextWrapping="NoWrap" Margin="3"></TextBox>
                         </DataTemplate>
                     </TabControl.ContentTemplate>
                 </TabControl>
             </Grid>
-            
+
             <Grid Grid.Row="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="142*"/>
@@ -75,7 +78,7 @@
                     <ColumnDefinition Width="515*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBox x:Name="LettersCountTextBox" ToolTip="Count of letters" TextWrapping="Wrap" MinWidth="100" Height="21" Width="100" Text="{Binding LettersCount, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox x:Name="LettersCountTextBox" ToolTip="Count of letters" MinWidth="100" Height="21" Width="100" Text="{Binding LettersCount, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button  x:Name="RemoveWordsButton" 
                          Style="{StaticResource RemoveButton}" 
                          Command="{Binding RemoveWordsAsync}"
@@ -87,7 +90,7 @@
                          Style="{StaticResource RemoveButton}" 
                          Command="{Binding RemoveMarksAsync}" 
                          Grid.Column="2"
-                         Content="Remove marks"                         />
+                         Content="Remove marks"/>
             </Grid>
         </Grid>
     </DockPanel>
