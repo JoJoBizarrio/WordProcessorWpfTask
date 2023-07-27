@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using WordProcessingWpfTask.Abstract;
 using WordProcessingWpfTask.Model;
 using WordProcessingWpfTask.View;
 using WordProcessingWpfTask.ViewModel;
