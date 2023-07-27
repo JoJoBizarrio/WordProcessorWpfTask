@@ -89,7 +89,6 @@ namespace WordProcessingWpfTask.ViewModel
 		}
 
 		// logic of save file
-		//TODO: separate from VM
 		//TODO: RelayCommandAsync instead of current
 		public RelayCommand OpenAsync { get; set; }
 		public RelayCommand SaveAsync { get; set; }
@@ -112,8 +111,12 @@ namespace WordProcessingWpfTask.ViewModel
 
 		// supporting
 		public ICommand Clear { get; set; }
+        public void OnClearExecuted(object obj)
+        {
+            SelectedTextFile.Text = null;
+        }
 
-		private ICommand _close;
+        private ICommand _close;
 		public ICommand Close
 		{
 			get
@@ -128,10 +131,5 @@ namespace WordProcessingWpfTask.ViewModel
 		}
 
 		public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
-
-		public void OnClearExecuted(object obj)
-		{
-			SelectedTextFile.Text = null;
-		}
 	}
 }

@@ -4,14 +4,18 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Navigation;
 using WordProcessingWpfTask.Abstract;
 
 namespace WordProcessingWpfTask.Model
 {
 	internal class Redactor : IRedactor
 	{
-		public Redactor() { }
+		public Redactor() 
+		{
+            pathKeyTextFileValueDictionary = new Dictionary<string, TextFile>();
+        }
+
+		public Dictionary<string, TextFile> pathKeyTextFileValueDictionary { get; private set; }
 
 		public Task<string> RemoveAllMarksParallelAsync(string text)
 		{
@@ -70,7 +74,7 @@ namespace WordProcessingWpfTask.Model
 			}
 		}
 
-		async public Task<TextFile> OpenFileAsync(string path)
+		async public Task<TextFile> OpenFileAsync(string path) //TODO: TextFileDTO
 		{
 			using (StreamReader streamReader = new StreamReader(path))
 			{
@@ -82,7 +86,8 @@ namespace WordProcessingWpfTask.Model
 					FilePath = path
 				};
 
-				return newTextFile;
+				pathKeyTextFileValueDictionary.Add(newTextFile.FilePath, newTextFile);
+                return newTextFile;
 			}
 		}
 	}
