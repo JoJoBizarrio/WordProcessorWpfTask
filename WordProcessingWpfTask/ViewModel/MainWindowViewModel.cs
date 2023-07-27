@@ -27,13 +27,21 @@ namespace WordProcessingWpfTask.ViewModel
 
         public ObservableCollection<TextFile> TextFilesCollection { get; set; }
 
-        private string _lettersCount;
-        public string LettersCount
+
+        private int _lettersCount;
+        private string _lettersCountString;
+        public string LettersCountString
         {
-            get => _lettersCount;
+            get => _lettersCountString;
             set
             {
-                Set(ref _lettersCount, value);
+                Set(ref _lettersCountString, value);
+
+                if (int.TryParse(_lettersCountString, out int result))
+                {
+                    _lettersCount = result;
+                }
+
                 RemoveWordsAsync.RaiseCanExecuteChanged();
             }
         }
@@ -55,17 +63,17 @@ namespace WordProcessingWpfTask.ViewModel
 
         async private Task OnRemoveWordsExecutedAsync()
         {
-            await _redactor.RemoveWordsParallelAsync(SelectedTextFile.Id, int.Parse(LettersCount));
+            await _redactor.RemoveWordsParallelAsync(SelectedTextFile.Id, _lettersCount);
         }
 
         private bool OnRemoveWordsCanExecuted(object obj)
         {
-            if (string.IsNullOrEmpty(LettersCount))
+            if (string.IsNullOrEmpty(LettersCountString))
             {
                 return false;
             }
 
-            if (!int.TryParse(LettersCount, out int lettersCount))
+            if (!int.TryParse(LettersCountString, out int lettersCount))
             {
                 return false;
             }
@@ -76,6 +84,24 @@ namespace WordProcessingWpfTask.ViewModel
             }
 
             return true;
+        }
+
+        private IAsyncCommand<object> _removeWordsInsideSeveralTextFiles;
+        public IAsyncCommand<object> RemoveWordsInsideSeveralTextFiles
+        {
+            get
+            {
+                if (_removeWordsInsideSeveralTextFiles != null)
+                {
+                    return _removeWordsInsideSeveralTextFiles;
+                }
+
+                return _removeWordsInsideSeveralTextFiles = new AsyncCommand<object>(async obj =>
+                {
+                    var idArray = TextFilesCollection.Select(item => item.Id);
+                    await _redactor.RemoveWordsInsideSeveralTextFilesParallelAsync(idArray, _lettersCount);
+                });
+            }
         }
 
         async private Task OnRemoveMarksExecutedAsync()

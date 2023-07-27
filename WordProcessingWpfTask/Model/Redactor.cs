@@ -72,6 +72,13 @@ namespace WordProcessingWpfTask.Model
             });
         }
 
+        async public Task RemoveWordsInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int letterCount)
+        {
+            var tasks = idArray.Select(id => RemoveWordsParallelAsync(id, letterCount));
+
+            await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
+        }
+
         async public Task SaveFileAsync(Guid id, string path) // id?
         {
             using (var writer = new StreamWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
@@ -94,7 +101,7 @@ namespace WordProcessingWpfTask.Model
                     Title = Path.GetFileNameWithoutExtension(path),
                     Text = temp,
                     FilePath = path
-            };
+                };
 
                 IdKeyTextFileValueDictionary.Add(newTextFile.Id, newTextFile);
                 return newTextFile;

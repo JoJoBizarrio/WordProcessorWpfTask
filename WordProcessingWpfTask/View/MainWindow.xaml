@@ -83,6 +83,7 @@
                          Style="{StaticResource RemoveButton}" 
                          Command="{Binding RemoveWordsAsync}"
                          CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}"
+                         
                          Grid.Column="1" 
                          Content="Remove words" />
 
