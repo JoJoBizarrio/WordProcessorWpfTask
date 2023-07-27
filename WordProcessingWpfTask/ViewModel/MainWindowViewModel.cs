@@ -27,7 +27,6 @@ namespace WordProcessingWpfTask.ViewModel
 
         public ObservableCollection<TextFile> TextFilesCollection { get; set; }
 
-
         private string _lettersCount;
         public string LettersCount
         {
@@ -43,7 +42,10 @@ namespace WordProcessingWpfTask.ViewModel
         public TextFile SelectedTextFile
         {
             get => _selectedTextFile;
-            set => Set(ref _selectedTextFile, value);
+            set
+            {
+                Set(ref _selectedTextFile, value);
+            }
         }
 
         // Remove Opeartion
@@ -81,29 +83,7 @@ namespace WordProcessingWpfTask.ViewModel
             await _redactor.RemoveAllMarksParallelAsync(SelectedTextFile.Id);
         }
 
-        // save opertaion
-        //TODO: RelayCommandAsync instead of current
-        // public RelayCommand OpenAsync { get; set; }
-        private IAsyncCommand<object> _saveAsync { get; set; }
-        public IAsyncCommand<object> SaveAsync
-        {
-            get
-            {
-                if (_saveAsync != null)
-                {
-                    return _saveAsync;
-                }
-
-                return _saveAsync = new AsyncCommand<object>(async obj =>
-                {
-                    if (obj is string filePath)
-                    {
-                        await _redactor.SaveFileAsync(SelectedTextFile.Id, filePath);
-                    }
-                });
-            }
-        }
-
+        // open/save opertaion
         private IAsyncCommand<object> _openAsync;
         public IAsyncCommand<object> OpenAsync
         {
@@ -119,6 +99,25 @@ namespace WordProcessingWpfTask.ViewModel
                     if (obj is string filePath)
                     {
                         TextFilesCollection.Add(await _redactor.OpenFileAsync(filePath));
+                    }
+                });
+            }
+        }
+        private IAsyncCommand<object> _saveAsync { get; set; }
+        public IAsyncCommand<object> SaveAsync
+        {
+            get
+            {
+                if (_saveAsync != null)
+                {
+                    return _saveAsync;
+                }
+
+                return _saveAsync = new AsyncCommand<object>(async obj =>
+                {
+                    if (obj is string filePath)
+                    {
+                        await _redactor.SaveFileAsync(SelectedTextFile.Id, filePath);
                     }
                 });
             }
