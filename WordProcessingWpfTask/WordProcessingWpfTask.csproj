@@ -75,7 +75,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Abstract\IRepository.cs" />
     <Compile Include="Abstract\ViewModelBase.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -83,7 +82,6 @@
     </Compile>
     <Compile Include="Abstract\IRedactor.cs" />
     <Compile Include="Model\Redactor.cs" />
-    <Compile Include="Model\Repository.cs" />
     <Compile Include="Model\TextFile.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\OpenDialog.cs" />
