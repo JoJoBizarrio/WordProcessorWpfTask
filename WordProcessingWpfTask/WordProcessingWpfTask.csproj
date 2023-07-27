@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="Abstract\IRedactor.cs" />
     <Compile Include="Model\Redactor.cs" />
+    <Compile Include="Model\TextFile.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\OpenDialog.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />

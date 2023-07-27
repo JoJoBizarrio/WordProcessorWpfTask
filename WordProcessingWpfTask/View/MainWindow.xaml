@@ -9,7 +9,7 @@
         Title="MainWindow" Height="450" Width="800"
         x:Name="RedactorMainWindow">
     <Window.Resources>
-        <Style TargetType="Button">
+        <Style x:Key="RemoveButton" TargetType="Button">
             <Setter Property="HorizontalAlignment" Value="Center"></Setter>
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
             <Setter Property="MinHeight" Value="21"></Setter>
@@ -21,9 +21,9 @@
     <DockPanel >
         <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding OpenAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}" />
+                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding OpenAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow, IsAsync=True}" />
                 <Separator/>
-                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding SaveAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}"/>
+                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding SaveAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow, IsAsync=True}"/>
                 <Separator/>
                 <MenuItem x:Name="ClearMenuItem" Header="Clear" Command="{Binding Clear}"/>
                 <MenuItem x:Name="QuitMenuItem" Header="Quit" Command="{Binding Quit}"/>
@@ -43,8 +43,34 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding CurrentText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontSize="16"/>
+                <TabControl x:Name="RedactorTabControl" 
+                            SelectedIndex="0" 
+                            ItemsSource="{Binding TextFilesCollection}"
+                            SelectedItem="{Binding SelectedTextFile, Mode=TwoWay}">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Title}" Margin="0,0,5,0"></TextBlock>
+                                <Button Content="x" 
+                                        Width="14"
+                                        Command="{Binding DataContext.Close, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
+                                        CommandParameter="{Binding SelectedItem, ElementName=RedactorTabControl}"></Button>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     AcceptsReturn="True"
+                                     AcceptsTab="True"
+                                     VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     TextWrapping="NoWrap" Margin="3"></TextBox>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
             </Grid>
+
             <Grid Grid.Row="1" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="142*"/>
@@ -52,9 +78,19 @@
                     <ColumnDefinition Width="515*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBox x:Name="LettersCountTextBox" ToolTip="Count of letters" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" MinWidth="100" Height="21" Width="100" Text="{Binding LettersCount, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button x:Name="RemoveWordsButton" Command="{Binding RemoveWordsAsync}" CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}" Grid.Column="1" Content="Remove words" />
-                <Button x:Name="RemoveMarksButton" Command="{Binding RemoveMarksAsync}" Grid.Column="2" Content="Remove marks"  Width="100"/>
+                <TextBox x:Name="LettersCountTextBox" ToolTip="Count of letters" MinWidth="100" Height="21" Width="100" Text="{Binding LettersCount, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button  x:Name="RemoveWordsButton" 
+                         Style="{StaticResource RemoveButton}" 
+                         Command="{Binding RemoveWordsAsync}"
+                         CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}"
+                         Grid.Column="1" 
+                         Content="Remove words" />
+
+                <Button  x:Name="RemoveMarksButton" 
+                         Style="{StaticResource RemoveButton}" 
+                         Command="{Binding RemoveMarksAsync}" 
+                         Grid.Column="2"
+                         Content="Remove marks"/>
             </Grid>
         </Grid>
     </DockPanel>

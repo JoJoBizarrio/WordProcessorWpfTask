@@ -34,6 +34,7 @@ namespace WordProcessingWpfTask.View
             var openFileDialog = new OpenFileDialog()
             {
                 Title = "Choose file",
+                DefaultExt = ".txt",
                 Filter = "Text (*.txt)|*.txt|All files (*.*)|*.*"
             };
 
@@ -68,5 +69,5 @@ namespace WordProcessingWpfTask.View
                 FilePath = null;
             }
         }
-    }
+	}
 }

@@ -1,5 +1,7 @@
 ﻿using AsyncAwaitBestPractices.MVVM;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -16,23 +18,14 @@ namespace WordProcessingWpfTask.ViewModel
             RemoveWordsAsync = new AsyncCommand(OnRemoveWordsExecutedAsync, OnRemoveWordsCanExecuted);
             RemoveMarksAsync = new AsyncCommand(OnRemoveMarksExecutedAsync);
 
-            OpenAsync = new RelayCommand(async obj => await OnOpenExecutedAsync(obj));
-            SaveAsync = new RelayCommand(async obj => await OnSaveExecutedAsync(obj));
-
             Clear = new RelayCommand(OnClearExecuted);
+
+            TextFilesCollection = new ObservableCollection<TextFile>();
         }
 
         private readonly IRedactor _redactor;
 
-        public string FilePath { get; private set; }
-
-        private string _currentText = "File => Open => Choose and open file...";
-        public string CurrentText
-        {
-            get => _currentText;
-            set => Set(ref _currentText, value);
-
-        }
+        public ObservableCollection<TextFile> TextFilesCollection { get; set; }
 
         private string _lettersCount;
         public string LettersCount
@@ -45,6 +38,16 @@ namespace WordProcessingWpfTask.ViewModel
             }
         }
 
+        private TextFile _selectedTextFile;
+        public TextFile SelectedTextFile
+        {
+            get => _selectedTextFile;
+            set
+            {
+                Set(ref _selectedTextFile, value);
+            }
+        }
+
         // Remove Opeartion
         public IAsyncCommand RemoveWordsAsync { get; set; }
 
@@ -52,10 +55,7 @@ namespace WordProcessingWpfTask.ViewModel
 
         async private Task OnRemoveWordsExecutedAsync()
         {
-            var temp = CurrentText;
-            temp = await _redactor.RemoveWordsParallelAsync(temp, int.Parse(LettersCount));
-
-            CurrentText = temp;
+            await _redactor.RemoveWordsParallelAsync(SelectedTextFile.Id, int.Parse(LettersCount));
         }
 
         private bool OnRemoveWordsCanExecuted(object obj)
@@ -80,47 +80,74 @@ namespace WordProcessingWpfTask.ViewModel
 
         async private Task OnRemoveMarksExecutedAsync()
         {
-            var temp = CurrentText;
-            CurrentText = await _redactor.RemoveAllMarksParallelAsync(temp);
+            await _redactor.RemoveAllMarksParallelAsync(SelectedTextFile.Id);
         }
 
-        // logic of save file
-        //TODO: separate from VM
-        public RelayCommand OpenAsync { get; set; }
-        public RelayCommand SaveAsync { get; set; }
-
-        async private Task OnOpenExecutedAsync(object obj)
+        // open/save opertaion
+        private IAsyncCommand<object> _openAsync;
+        public IAsyncCommand<object> OpenAsync
         {
-            if (obj is string filePath)
+            get
             {
-                using (StreamReader streamReader = new StreamReader(filePath))
+                if (_openAsync != null)
                 {
-                    FilePath = filePath;
-                    var temp = await streamReader.ReadToEndAsync();
-                    CurrentText = temp;
+                    return _openAsync;
                 }
+
+                return _openAsync = new AsyncCommand<object>(async obj =>
+                {
+                    if (obj is string filePath)
+                    {
+                        TextFilesCollection.Add(await _redactor.OpenFileAsync(filePath));
+                    }
+                });
             }
         }
-
-        async private Task OnSaveExecutedAsync(object obj)
+        private IAsyncCommand<object> _saveAsync { get; set; }
+        public IAsyncCommand<object> SaveAsync
         {
-            if (obj is string filePath)
+            get
             {
-                using (var writer = new StreamWriter(new FileStream(filePath, FileMode.Create, FileAccess.Write)))
+                if (_saveAsync != null)
                 {
-                    await writer.WriteAsync(CurrentText);
+                    return _saveAsync;
                 }
+
+                return _saveAsync = new AsyncCommand<object>(async obj =>
+                {
+                    if (obj is string filePath)
+                    {
+                        await _redactor.SaveFileAsync(SelectedTextFile.Id, filePath);
+                    }
+                });
             }
         }
 
         // supporting
         public ICommand Clear { get; set; }
-
-        public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
-
         public void OnClearExecuted(object obj)
         {
-            CurrentText = null;
+            SelectedTextFile.Text = null;
         }
+
+        private ICommand _close;
+        public ICommand Close
+        {
+            get
+            {
+                if (_close != null)
+                {
+                    return _close;
+                }
+
+                return _close = new RelayCommand(textFile =>
+                {
+                    TextFilesCollection.Remove((TextFile)textFile);
+                    _redactor.Remove(((TextFile)textFile).Id);
+                });
+            }
+        }
+
+        public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
     }
 }
