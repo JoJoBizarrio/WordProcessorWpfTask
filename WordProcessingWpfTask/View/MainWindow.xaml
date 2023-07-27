@@ -50,9 +50,19 @@
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Title}" Margin="0,0,5,0"></TextBlock>
-                                <Button Content="x" 
-                                        Width="14"
+                                <CheckBox IsChecked="{Binding IsEditable, Mode=OneWayToSource}"
+                                          Command="{Binding DataContext.OnChecked, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
+                                          Margin="3"></CheckBox>
+
+                                <TextBlock Text="{Binding Title}" 
+                                           Margin="0,0,5,0"
+                                           VerticalAlignment="Center"></TextBlock>
+
+                                <Button Content="X" 
+                                        Width="18"
+                                        Height="18"
+                                        Margin="0, 3,0, 0"
+                                        VerticalAlignment="Center"
                                         Command="{Binding DataContext.Close, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
                                         CommandParameter="{Binding SelectedItem, ElementName=RedactorTabControl}"></Button>
                             </StackPanel>
@@ -75,10 +85,17 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="142*"/>
                     <ColumnDefinition Width="133*"/>
-                    <ColumnDefinition Width="515*"/>
+                    <ColumnDefinition Width="181*"/>
+                    <ColumnDefinition Width="334*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBox x:Name="LettersCountTextBox" ToolTip="Count of letters" MinWidth="100" Height="21" Width="100" Text="{Binding LettersCount, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox x:Name="LettersCountTextBox" 
+                         ToolTip="Count of letters"
+                         MinWidth="100"
+                         Height="21"
+                         Width="100" 
+                         Text="{Binding LettersCountText, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"/>
+
                 <Button  x:Name="RemoveWordsButton" 
                          Style="{StaticResource RemoveButton}" 
                          Command="{Binding RemoveWordsAsync}"
@@ -89,8 +106,8 @@
                 <Button  x:Name="RemoveMarksButton" 
                          Style="{StaticResource RemoveButton}" 
                          Command="{Binding RemoveMarksAsync}" 
-                         Grid.Column="2"
-                         Content="Remove marks"/>
+                         Grid.Column="3"
+                         Content="Remove marks" HorizontalAlignment="Left" Margin="16,0,0,0"/>
             </Grid>
         </Grid>
     </DockPanel>

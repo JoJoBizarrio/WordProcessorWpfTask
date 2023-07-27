@@ -12,6 +12,17 @@ namespace WordProcessingWpfTask.Model
 	{
 		public Guid Id { get; private set; } = Guid.NewGuid();
 
+		private bool _isEditable;
+		public bool IsEditable
+		{
+			get => _isEditable;
+			set
+			{
+				_isEditable = value;
+				OnPropertyChanged();
+			}
+		}
+
 		private string _title;
 		public string Title
 		{
@@ -29,7 +40,7 @@ namespace WordProcessingWpfTask.Model
 			get => _text;
 			set
 			{
-				_text = value;
+				_text = value;   // bad solution timerCallBack? 
 				OnPropertyChanged();
 			}
 		}

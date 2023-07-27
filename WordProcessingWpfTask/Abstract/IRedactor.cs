@@ -10,8 +10,10 @@ namespace WordProcessingWpfTask.Abstract
 	internal interface IRedactor
 	{
 		Task<string> RemoveWordsParallelAsync(Guid id, int letterCount);
+		Task RemoveWordsInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int letterCount);
 
 		Task<string> RemoveAllMarksParallelAsync(Guid id);
+		Task RemoveAllMarksInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray);
 
 		Task<TextFile> OpenFileAsync(string path);
 

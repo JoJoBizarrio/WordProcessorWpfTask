@@ -84,7 +84,6 @@
     <Compile Include="Model\Redactor.cs" />
     <Compile Include="Model\TextFile.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
-    <Compile Include="ViewModel\OpenDialog.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
