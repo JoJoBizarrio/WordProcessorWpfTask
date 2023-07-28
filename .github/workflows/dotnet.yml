@@ -22,8 +22,8 @@ jobs:
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.5
     - name: Restore dependencies
-      run: dotnet restore
+      run: nuget restore WordProcessorWpfTask.sln
     - name: Build
-      run: dotnet build -c release --no-restore
+      run: msbuild WordProcessorWpfTask.sln build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
