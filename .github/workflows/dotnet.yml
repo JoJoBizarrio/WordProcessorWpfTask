@@ -24,6 +24,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: msbuild WordProcessorWpfTask.sln
+      run: msbuild
     - name: Test
       run: dotnet test --no-build --verbosity normal
