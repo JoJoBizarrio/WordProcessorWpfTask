@@ -140,7 +140,7 @@ namespace WordProcessingWpfTask.Model
 		{
 			CheckPath(path);
 
-			if (File.Exists(path))
+			if (!File.Exists(path))
 			{
 				throw new FileNotFoundException("File isnt exists by path.", Path.GetFileName(path));
 			}
@@ -180,7 +180,7 @@ namespace WordProcessingWpfTask.Model
 				throw new ArgumentNullException("path");
 			}
 
-			if (Path.IsPathRooted(path))
+			if (!Path.IsPathRooted(path))
 			{
 				throw new ArgumentException($"Invalid path = {path}.", "path");
 			}
