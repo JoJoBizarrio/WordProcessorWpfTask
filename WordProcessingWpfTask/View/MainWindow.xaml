@@ -51,14 +51,14 @@
                             SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}">
                     <TabControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" ScrollViewer.CanContentScroll="True">
                                 <CheckBox IsChecked="{Binding IsEditable, Mode=OneWayToSource}"
                                           Command="{Binding DataContext.OnChecked, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
                                           Margin="3"></CheckBox>
 
                                 <TextBlock Text="{Binding Title}" 
                                            Margin="0,0,5,0"
-                                           VerticalAlignment="Center"></TextBlock>
+                                           VerticalAlignment="Center"/>
 
                                 <Button Content="X" 
                                         Width="18"
@@ -66,18 +66,19 @@
                                         Margin="0, 3,0, 0"
                                         VerticalAlignment="Center"
                                         Command="{Binding DataContext.Close, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
-                                        CommandParameter="{Binding SelectedItem, ElementName=RedactorTabControl}"></Button>
+                                        CommandParameter="{Binding SelectedItem, ElementName=RedactorTabControl}"/>
                             </StackPanel>
                         </DataTemplate>
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=10000}"
+                            <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
                                      AcceptsReturn="True"
                                      AcceptsTab="True"
                                      VerticalScrollBarVisibility="Auto"
                                      HorizontalScrollBarVisibility="Auto"
-                                     TextWrapping="NoWrap" Margin="3"></TextBox>
+                                     TextWrapping="NoWrap" 
+                                     Margin="3"/>
                         </DataTemplate>
                     </TabControl.ContentTemplate>
                 </TabControl>
