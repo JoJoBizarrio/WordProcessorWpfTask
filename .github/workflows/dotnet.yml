@@ -22,7 +22,7 @@ jobs:
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.5
     - name: Restore dependencies
-      run: dotnet restore
+      run: msbuild -t:restore
     - name: Build
       run: msbuild
     - name: Test
