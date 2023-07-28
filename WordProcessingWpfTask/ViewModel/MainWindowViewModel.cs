@@ -16,6 +16,8 @@ namespace WordProcessingWpfTask.ViewModel
 		{
 			_redactor = redactor;
 			TextFilesCollection = new ObservableCollection<TextFile>();
+
+			
 		}
 
 		private readonly IRedactor _redactor;
