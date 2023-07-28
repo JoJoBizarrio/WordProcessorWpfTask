@@ -16,6 +16,8 @@ namespace WordProcessingWpfTask.ViewModel
 		{
 			_redactor = redactor;
 			TextFilesCollection = new ObservableCollection<TextFile>();
+
+			
 		}
 
 		private readonly IRedactor _redactor;
@@ -181,7 +183,7 @@ namespace WordProcessingWpfTask.ViewModel
 					return _clear;
 				}
 
-				return _clear = new RelayCommand(p => SelectedTextFile.Title = null);
+				return _clear = new RelayCommand(p => SelectedTextFile.Text = null);
 			}
 
 		}
