@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Init build on .Net F
+    name: Init build on .Net
     runs-on: windows-latest
 
     steps:
