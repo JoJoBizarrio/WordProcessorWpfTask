@@ -16,6 +16,8 @@
             <Setter Property="MinWidth" Value="120"></Setter>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
     <DockPanel >
@@ -46,7 +48,7 @@
                 <TabControl x:Name="RedactorTabControl" 
                             SelectedIndex="0" 
                             ItemsSource="{Binding TextFilesCollection}"
-                            SelectedItem="{Binding SelectedTextFile, Mode=TwoWay}">
+                            SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}">
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
@@ -70,7 +72,7 @@
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=10000}"
                                      AcceptsReturn="True"
                                      AcceptsTab="True"
                                      VerticalScrollBarVisibility="Auto"
