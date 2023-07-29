@@ -17,10 +17,4 @@
     <PackageReference Include="AsyncAwaitBestPractices.MVVM" Version="6.0.6" />
     <PackageReference Include="NLog" Version="5.2.2" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Abstract\ICommand.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="App.config" />
-  </ItemGroup>
 </Project>
