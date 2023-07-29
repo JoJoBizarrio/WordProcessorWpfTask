@@ -51,19 +51,19 @@
                             SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}">
                     <TabControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" ScrollViewer.CanContentScroll="True">
+                            <StackPanel Orientation="Horizontal" ScrollViewer.CanContentScroll="True" Margin="2">
                                 <CheckBox IsChecked="{Binding IsEditable, Mode=OneWayToSource}"
                                           Command="{Binding DataContext.OnChecked, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
                                           Margin="3"></CheckBox>
 
                                 <TextBlock Text="{Binding Title}" 
-                                           Margin="0,0,5,0"
+                                           Margin="0,0,10,0"
                                            VerticalAlignment="Center"/>
 
                                 <Button Content="X" 
                                         Width="18"
                                         Height="18"
-                                        Margin="0, 3,0, 0"
+                                        Margin="0,3,3,0"
                                         VerticalAlignment="Center"
                                         Command="{Binding DataContext.Close, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
                                         CommandParameter="{Binding SelectedItem, ElementName=RedactorTabControl}"/>
@@ -72,7 +72,7 @@
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=1000}"
+                            <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      AcceptsReturn="True"
                                      AcceptsTab="True"
                                      VerticalScrollBarVisibility="Auto"

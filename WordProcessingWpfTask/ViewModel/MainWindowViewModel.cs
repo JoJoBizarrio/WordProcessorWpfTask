@@ -1,4 +1,5 @@
 ﻿using AsyncAwaitBestPractices.MVVM;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -16,8 +17,6 @@ namespace WordProcessingWpfTask.ViewModel
 		{
 			_redactor = redactor;
 			TextFilesCollection = new ObservableCollection<TextFile>();
-
-			
 		}
 
 		private readonly IRedactor _redactor;
