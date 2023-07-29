@@ -9,17 +9,17 @@ using WordProcessingWpfTask.Abstract;
 
 namespace WordProcessingWpfTask.Model
 {
-	internal class Redactor : IRedactor
+	public class Redactor : IRedactor
 	{
 		public Redactor() { }
 
-		public readonly IDictionary<Guid, TextFile> IdKeyTextFileValueDictionary = new Dictionary<Guid, TextFile>();
+		public IDictionary<Guid, TextFile> IdKeyTextFileValueDictionary { get; } = new Dictionary<Guid, TextFile>();
 
 		async public Task RemoveAllMarksInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray)
 		{
 			if (idArray == null)
 			{
-				throw new ArgumentNullException("idArray is null.");
+				throw new ArgumentNullException(nameof(idArray), "idArray is null.");
 			}
 
 			if (idArray.Count() == 0)
@@ -52,12 +52,12 @@ namespace WordProcessingWpfTask.Model
 		{
 			if (idArray == null)
 			{
-				throw new ArgumentNullException("idArray is null.");
+				throw new ArgumentNullException(nameof(idArray), "idArray is null.");
 			}
 
 			if (lettersCount <= 0)
 			{
-				throw new ArgumentException($"Letters count is equal to {lettersCount} less zero.", "lettersCount");
+				throw new ArgumentException($"Letters count is equal to {lettersCount} less zero.", nameof(lettersCount));
 			}
 
 			if (idArray.Count() == 0)
@@ -74,7 +74,7 @@ namespace WordProcessingWpfTask.Model
 		{
 			if (lettersCount <= 0)
 			{
-				throw new ArgumentException($"Letters count is equal to {lettersCount} less zero.", "letterCount");
+				throw new ArgumentException($"Letters count is equal to {lettersCount} less zero.", nameof(lettersCount));
 			}
 
 			CheckId(id);
@@ -166,7 +166,7 @@ namespace WordProcessingWpfTask.Model
 		{
 			if (!IdKeyTextFileValueDictionary.TryGetValue(id, out var _))
 			{
-				throw new ArgumentException($"Dictionary hasnt item by id = {id}.", "id");
+				throw new ArgumentException($"Dictionary hasnt item by id = {id}.", nameof(id));
 			}
 		}
 
@@ -174,12 +174,12 @@ namespace WordProcessingWpfTask.Model
 		{
 			if (string.IsNullOrEmpty(path))
 			{
-				throw new ArgumentNullException("path");
+				throw new ArgumentNullException(nameof(path));
 			}
 
 			if (!Path.IsPathRooted(path))
 			{
-				throw new ArgumentException($"Invalid path = {path}.", "path");
+				throw new ArgumentException($"Invalid path = {path}.", nameof(path));
 			}
 		}
 	}

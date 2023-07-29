@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace WordProcessingWpfTask.Model
 {
-	internal class TextFile : INotifyPropertyChanged
+	public class TextFile : INotifyPropertyChanged
 	{
 		public Guid Id { get; } = Guid.NewGuid();
 

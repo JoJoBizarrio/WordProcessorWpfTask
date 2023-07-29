@@ -7,8 +7,9 @@ using WordProcessingWpfTask.Model;
 
 namespace WordProcessingWpfTask.Abstract
 {
-	internal interface IRedactor
+	public interface IRedactor
 	{
+		IDictionary<Guid, TextFile> IdKeyTextFileValueDictionary { get; }
 		Task<string> RemoveWordsParallelAsync(Guid id, int lettersCount);
 		Task RemoveWordsInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int lettersCount);
 
