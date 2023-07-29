@@ -16,22 +16,12 @@ namespace WordProcessorWpfTask.Tests
 			_redactor = new Redactor();
 		}
 
-		[TestCase('.')]
-		[TestCase(',')]
-		[TestCase('!')]
-		[TestCase('?')]
-		[TestCase(':')]
-		[TestCase('(')]
-		[TestCase(')')]
-		[TestCase('\\')]
-		[TestCase('"')]
-		[TestCase(';')]
-		[TestCase('-')]
-		public void CheckRemoveAllMarks(char c)
+		[TestCase(".,!?:()\\\";-")]
+		public void CheckRemoveAllMarks(string marks)
 		{
 			// assing
 			var textFile = new TextFile();
-			textFile.Text = c.ToString();
+			textFile.Text = marks;
 			_redactor.IdKeyTextFileValueDictionary.Add(textFile.Id, textFile);
 
 			// act
