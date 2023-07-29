@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace WordProcessingWpfTask.Model
 {
 	internal class TextFile : INotifyPropertyChanged
 	{
-		public Guid Id { get; private set; } = Guid.NewGuid();
+		public Guid Id { get; } = Guid.NewGuid();
 
 		private bool _isEditable;
 		public bool IsEditable
@@ -60,6 +61,30 @@ namespace WordProcessingWpfTask.Model
 		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(this, obj))
+			{
+				return true;
+			}
+			if (ReferenceEquals(null, obj) || obj.GetType() != GetType())
+			{
+				return false;
+			}
+
+			var textFile = (TextFile)obj;
+
+			return Id == textFile.Id && FilePath == textFile.FilePath;
+		}
+
+		public override int GetHashCode()
+		{
+			var prime = 73;
+			var hash = 37;
+
+			return prime * hash + Id.GetHashCode();
 		}
 	}
 }

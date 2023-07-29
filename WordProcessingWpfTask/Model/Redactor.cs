@@ -11,12 +11,9 @@ namespace WordProcessingWpfTask.Model
 {
 	internal class Redactor : IRedactor
 	{
-		public Redactor()
-		{
-			IdKeyTextFileValueDictionary = new Dictionary<Guid, TextFile>();
-		}
+		public Redactor() { }
 
-		public IDictionary<Guid, TextFile> IdKeyTextFileValueDictionary { get; private set; }
+		public readonly IDictionary<Guid, TextFile> IdKeyTextFileValueDictionary = new Dictionary<Guid, TextFile>();
 
 		async public Task RemoveAllMarksInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray)
 		{
