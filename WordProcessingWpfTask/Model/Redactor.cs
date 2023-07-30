@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.TextFormatting;
 using WordProcessingWpfTask.Abstract;
 
 namespace WordProcessingWpfTask.Model
@@ -19,16 +18,18 @@ namespace WordProcessingWpfTask.Model
 
 		public IEnumerable<TextFile> TextFiles => _idKeyTextFileValueDictionary.Values.ToImmutableArray();
 
-		async public Task<IEnumerable<TextFile>> RemoveAllMarksInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray)
+		#region operations of remove
+		#region marks
+		async public Task<IEnumerable<TextFile>> RemoveAllMarksInSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray)
 		{
-			if (idArray == null)
+			if (Equals(idArray, null))
 			{
 				throw new ArgumentNullException(nameof(idArray), "idArray is null.");
 			}
 
 			if (idArray.Count() == 0)
 			{
-				return Array.Empty<TextFile>();
+				return Enumerable.Empty<TextFile>();
 			}
 
 			var tasks = idArray.Select(id => RemoveAllMarksParallelAsync(id));
@@ -50,22 +51,21 @@ namespace WordProcessingWpfTask.Model
 				return textFile;
 			});
 		}
+		#endregion
 
-		async public Task<IEnumerable<TextFile>> RemoveWordsInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int lettersCount)
+		#region words
+		async public Task<IEnumerable<TextFile>> RemoveWordsInSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int lettersCount)
 		{
 			if (idArray == null)
 			{
 				throw new ArgumentNullException(nameof(idArray), "idArray is null.");
 			}
 
-			if (lettersCount <= 0)
-			{
-				throw new ArgumentException($"Letters count is equal to {lettersCount} less zero.", nameof(lettersCount));
-			}
+			CheckLettersCount(lettersCount);
 
-			if (idArray.Count() == 0)
+			if (lettersCount == 0 || idArray.Count() == 0)
 			{
-				return Array.Empty<TextFile>();
+				return Enumerable.Empty<TextFile>();
 			}
 
 			var tasks = idArray.Select(id => RemoveWordsParallelAsync(id, lettersCount));
@@ -75,11 +75,7 @@ namespace WordProcessingWpfTask.Model
 
 		async public Task<TextFile> RemoveWordsParallelAsync(Guid id, int lettersCount)
 		{
-			if (lettersCount <= 0)
-			{
-				throw new ArgumentException($"Letters count is equal to {lettersCount} less zero.", nameof(lettersCount));
-			}
-
+			CheckLettersCount(lettersCount);
 			CheckId(id);
 
 			return await Task.Run(() =>
@@ -119,7 +115,10 @@ namespace WordProcessingWpfTask.Model
 				return textFile;
 			});
 		}
+		#endregion
+		#endregion
 
+		#region operation with files
 		async public Task SaveFileAsync(Guid id, string path)
 		{
 			CheckId(id);
@@ -131,7 +130,7 @@ namespace WordProcessingWpfTask.Model
 				await writer.WriteAsync(textFile.Text);
 
 				textFile.FilePath = path;
-				textFile.Title = Path.GetFileNameWithoutExtension(path); //path.Remove(path.LastIndexOf('.')).Substring(path.LastIndexOf('\\') + 1);
+				textFile.Title = Path.GetFileNameWithoutExtension(path);
 			}
 		}
 
@@ -158,23 +157,15 @@ namespace WordProcessingWpfTask.Model
 				return newTextFile;
 			}
 		}
+		#endregion
 
-		public void Add(TextFile textFile)
+		#region validation
+		private void CheckLettersCount(int lettersCount)
 		{
-			if (textFile == null)
+			if (lettersCount < 0)
 			{
-				throw new ArgumentNullException(nameof(textFile), "TextFile is null.");
+				throw new ArgumentException($"Letters count is less zero and equal to {lettersCount}.", nameof(lettersCount));
 			}
-
-			if (!_idKeyTextFileValueDictionary.TryAdd(textFile.Id, textFile))
-			{
-				throw new ArgumentException("Same element already exists in redactor.", nameof(textFile));
-			}
-		}
-
-		public bool Remove(Guid id)
-		{
-			return _idKeyTextFileValueDictionary.Remove(id);
 		}
 
 		private void CheckId(Guid id)
@@ -197,5 +188,26 @@ namespace WordProcessingWpfTask.Model
 				throw new ArgumentException($"Invalid path = {path}.", nameof(path));
 			}
 		}
+		#endregion
+
+		#region suppporting
+		public void Add(TextFile textFile)
+		{
+			if (textFile == null)
+			{
+				throw new ArgumentNullException(nameof(textFile), "TextFile is null.");
+			}
+
+			if (!_idKeyTextFileValueDictionary.TryAdd(textFile.Id, textFile))
+			{
+				throw new ArgumentException("Same element already exists in redactor.", nameof(textFile));
+			}
+		}
+
+		public bool Remove(Guid id)
+		{
+			return _idKeyTextFileValueDictionary.Remove(id);
+		}
+		#endregion
 	}
 }
