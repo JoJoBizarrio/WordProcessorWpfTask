@@ -37,7 +37,7 @@ namespace WordProcessorWpfTask.Tests
 		[Category("RemoveMarksInSeveralTextFiles")]
 		public void IdArrayIsNull_ThrowArgumentNullEception()
 		{
-			AsyncTestDelegate testDelegate = () => { return _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(null); };
+			AsyncTestDelegate testDelegate = async () => { await _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(null); };
 
 			Assert.ThrowsAsync<ArgumentNullException>(testDelegate);
 		}
@@ -60,7 +60,7 @@ namespace WordProcessorWpfTask.Tests
 		{
 			var guidArray = new Guid[] { new Guid() };
 
-			AsyncTestDelegate testDelegate = () => { return _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(guidArray); };
+			AsyncTestDelegate testDelegate = async () => { await _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(guidArray); };
 
 			Assert.ThrowsAsync<ArgumentException>(testDelegate);
 		}
@@ -72,7 +72,7 @@ namespace WordProcessorWpfTask.Tests
 		public void IdArrayIsNull_ThrowArgumentNullException()
 		{
 			var minimalLetterCount = 1;
-			AsyncTestDelegate testDelegate = () => { return _redactor.RemoveWordsInSeveralTextFilesParallelAsync(null, minimalLetterCount); };
+			AsyncTestDelegate testDelegate = async () => { await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(null, minimalLetterCount); };
 
 			Assert.ThrowsAsync<ArgumentNullException>(testDelegate);
 		}
@@ -84,7 +84,7 @@ namespace WordProcessorWpfTask.Tests
 			var illegalLetterCount = -1;
 			var idArray = Enumerable.Empty<Guid>();
 
-			AsyncTestDelegate testDelegate = () => { return _redactor.RemoveWordsInSeveralTextFilesParallelAsync(idArray, illegalLetterCount); };
+			AsyncTestDelegate testDelegate = async () => { await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(idArray, illegalLetterCount); };
 
 			Assert.ThrowsAsync<ArgumentException>(testDelegate);
 		}
@@ -114,6 +114,60 @@ namespace WordProcessorWpfTask.Tests
 
 			Assert.That(actual, Is.EqualTo(expected));
 		}
+
+		[Category("RemoveWordsInSeveralTextFiles")]
+		[TestCase("test start, testWord, test end", " start, testWord,  ", 4)]
+		[TestCase("test start, testWord, test end", " , ,  ", 1001)]
+		async public Task RemoveWords(string words, string expected, int lettersCount)
+		{
+			var textFiles = new TextFile[] { new TextFile() { Text = words } };
+			_redactor.Add(textFiles[0]);
+
+			var actual = await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(textFiles.Select(item => item.Id), lettersCount);
+
+			Assert.That(actual.First().Text, Is.EqualTo(expected));
+		}
 		#endregion
+
+		[Test]
+		[Category("OperationWithFile")]
+		async public Task SaveFileAsync()
+		{
+			var textFile = new TextFile()
+			{
+				Title = "test save",
+				FilePath = Environment.CurrentDirectory + "\\test save.txt",
+				Text = "run test of saveAsync"
+			};
+
+			_redactor.Add(textFile);
+
+			await _redactor.SaveFileAsync(textFile.Id, textFile.FilePath);
+
+			Assert.IsTrue(File.Exists(textFile.FilePath));
+		}
+
+		[Test]
+		[Category("OperationWithFile")]
+		async public Task OpenFileAsync()
+		{
+			await SaveFileAsync();
+			var path = Environment.CurrentDirectory + "\\test save.txt";
+
+			var textFile = await _redactor.OpenFileAsync(path);
+
+			Assert.IsTrue(File.Exists(textFile.FilePath));
+		}
+
+		[Test]
+		[Category("OperationWithFile")]
+		public void OpenFileAsync_IncorrectPath_ThrowFileNotFoundException()
+		{
+			var wrongPath = Environment.CurrentDirectory;
+
+			AsyncTestDelegate testDelegate = async () => { await _redactor.OpenFileAsync(wrongPath); };
+
+			Assert.ThrowsAsync<FileNotFoundException>(testDelegate);
+		}
 	}
 }
