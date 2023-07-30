@@ -22,13 +22,16 @@ namespace WordProcessorWpfTask.Tests
 			// assing
 			var textFile = new TextFile();
 			textFile.Text = marks;
-			_redactor.IdKeyTextFileValueDictionary.Add(textFile.Id, textFile);
+			_redactor.Add(textFile);
+
+			var expected = "";
 
 			// act
-			var excepted = _redactor.RemoveAllMarksParallelAsync(textFile.Id).Result;
+			var actual = _redactor.RemoveAllMarksParallelAsync(textFile.Id).Result;
 
 			// assert
-			Assert.That(excepted, Is.EqualTo(string.Empty));
+			Assert.That(actual.Text, Is.EqualTo(expected));
+
 		}
 	}
 }

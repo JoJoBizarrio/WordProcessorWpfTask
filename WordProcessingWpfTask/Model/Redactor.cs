@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.TextFormatting;
 using WordProcessingWpfTask.Abstract;
 
 namespace WordProcessingWpfTask.Model
@@ -13,9 +15,11 @@ namespace WordProcessingWpfTask.Model
 	{
 		public Redactor() { }
 
-		public IDictionary<Guid, TextFile> IdKeyTextFileValueDictionary { get; } = new Dictionary<Guid, TextFile>();
+		private readonly IDictionary<Guid, TextFile> _idKeyTextFileValueDictionary = new Dictionary<Guid, TextFile>();
 
-		async public Task RemoveAllMarksInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray)
+		public IEnumerable<TextFile> TextFiles => _idKeyTextFileValueDictionary.Values.ToImmutableArray();
+
+		async public Task<IEnumerable<TextFile>> RemoveAllMarksInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray)
 		{
 			if (idArray == null)
 			{
@@ -24,31 +28,30 @@ namespace WordProcessingWpfTask.Model
 
 			if (idArray.Count() == 0)
 			{
-				return;
+				return Array.Empty<TextFile>();
 			}
 
 			var tasks = idArray.Select(id => RemoveAllMarksParallelAsync(id));
 
-			await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
+			return await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
 		}
 
-		async public Task<string> RemoveAllMarksParallelAsync(Guid id)
+		async public Task<TextFile> RemoveAllMarksParallelAsync(Guid id)
 		{
 			CheckId(id);
 
 			return await Task.Run(() =>
 			{
-				var textFile = IdKeyTextFileValueDictionary[id];
+				var textFile = _idKeyTextFileValueDictionary[id];
 				var textChars = textFile.Text.ToCharArray();
 				var filter = textChars.AsParallel().AsOrdered().Where(symbol => !Char.IsPunctuation(symbol));
-				var result = new String(filter.ToArray());
+				textFile.Text = new String(filter.ToArray());
 
-				IdKeyTextFileValueDictionary[id].Text = result;
-				return result;
+				return textFile;
 			});
 		}
 
-		async public Task RemoveWordsInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int lettersCount)
+		async public Task<IEnumerable<TextFile>> RemoveWordsInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int lettersCount)
 		{
 			if (idArray == null)
 			{
@@ -62,15 +65,15 @@ namespace WordProcessingWpfTask.Model
 
 			if (idArray.Count() == 0)
 			{
-				return;
+				return Array.Empty<TextFile>();
 			}
 
 			var tasks = idArray.Select(id => RemoveWordsParallelAsync(id, lettersCount));
 
-			await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
+			return await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
 		}
 
-		async public Task<string> RemoveWordsParallelAsync(Guid id, int lettersCount)
+		async public Task<TextFile> RemoveWordsParallelAsync(Guid id, int lettersCount)
 		{
 			if (lettersCount <= 0)
 			{
@@ -81,7 +84,7 @@ namespace WordProcessingWpfTask.Model
 
 			return await Task.Run(() =>
 			{
-				var textFile = IdKeyTextFileValueDictionary[id];
+				var textFile = _idKeyTextFileValueDictionary[id];
 				var stringBuilder = new StringBuilder(textFile.Text);
 				var i = 0;
 				var wordLength = 1;
@@ -112,9 +115,8 @@ namespace WordProcessingWpfTask.Model
 					}
 				}
 
-				var result = stringBuilder.ToString();
-				textFile.Text = result;
-				return result;
+				textFile.Text = stringBuilder.ToString();
+				return textFile;
 			});
 		}
 
@@ -125,7 +127,7 @@ namespace WordProcessingWpfTask.Model
 
 			using (var writer = new StreamWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
 			{
-				var textFile = IdKeyTextFileValueDictionary[id];
+				var textFile = _idKeyTextFileValueDictionary[id];
 				await writer.WriteAsync(textFile.Text);
 
 				textFile.FilePath = path;
@@ -152,19 +154,32 @@ namespace WordProcessingWpfTask.Model
 					FilePath = path
 				};
 
-				IdKeyTextFileValueDictionary.Add(newTextFile.Id, newTextFile);
+				_idKeyTextFileValueDictionary.Add(newTextFile.Id, newTextFile);
 				return newTextFile;
+			}
+		}
+
+		public void Add(TextFile textFile)
+		{
+			if (textFile == null)
+			{
+				throw new ArgumentNullException(nameof(textFile), "TextFile is null");
+			}
+
+			if (!_idKeyTextFileValueDictionary.TryAdd(textFile.Id, textFile))
+			{
+				throw new ArgumentException("An element with the same key already exists in redactor", nameof(textFile));
 			}
 		}
 
 		public bool Remove(Guid id)
 		{
-			return IdKeyTextFileValueDictionary.Remove(id);
+			return _idKeyTextFileValueDictionary.Remove(id);
 		}
 
 		private void CheckId(Guid id)
 		{
-			if (!IdKeyTextFileValueDictionary.TryGetValue(id, out var _))
+			if (!_idKeyTextFileValueDictionary.TryGetValue(id, out var _))
 			{
 				throw new ArgumentException($"Dictionary hasnt item by id = {id}.", nameof(id));
 			}
