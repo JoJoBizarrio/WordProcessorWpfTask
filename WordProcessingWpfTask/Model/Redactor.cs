@@ -163,12 +163,12 @@ namespace WordProcessingWpfTask.Model
 		{
 			if (textFile == null)
 			{
-				throw new ArgumentNullException(nameof(textFile), "TextFile is null");
+				throw new ArgumentNullException(nameof(textFile), "TextFile is null.");
 			}
 
 			if (!_idKeyTextFileValueDictionary.TryAdd(textFile.Id, textFile))
 			{
-				throw new ArgumentException("An element with the same key already exists in redactor", nameof(textFile));
+				throw new ArgumentException("Same element already exists in redactor.", nameof(textFile));
 			}
 		}
 

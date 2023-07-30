@@ -31,7 +31,6 @@ namespace WordProcessorWpfTask.Tests
 
 			// assert
 			Assert.That(actual.Text, Is.EqualTo(expected));
-
 		}
 	}
 }
