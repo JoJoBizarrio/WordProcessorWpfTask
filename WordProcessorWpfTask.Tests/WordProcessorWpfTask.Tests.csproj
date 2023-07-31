@@ -17,7 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\WordProcessingWpfTask\WordProcessorWpfTask.Core.csproj" />
+		<ProjectReference Include="..\WordProcessingWpfTask\WordProcessingWpfTask.csproj" />
 	</ItemGroup>
 
 </Project>

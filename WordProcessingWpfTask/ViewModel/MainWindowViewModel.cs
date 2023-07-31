@@ -11,7 +11,7 @@ using WordProcessingWpfTask.Model;
 
 namespace WordProcessingWpfTask.ViewModel
 {
-	internal class MainWindowViewModel : ViewModelBase
+	public class MainWindowViewModel : ViewModelBase
 	{
 		public MainWindowViewModel(IRedactor redactor)
 		{
