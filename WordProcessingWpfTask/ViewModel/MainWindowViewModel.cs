@@ -11,7 +11,7 @@ using WordProcessingWpfTask.Model;
 
 namespace WordProcessingWpfTask.ViewModel
 {
-	internal class MainWindowViewModel : ViewModelBase
+	public class MainWindowViewModel : ViewModelBase
 	{
 		public MainWindowViewModel(IRedactor redactor)
 		{
@@ -67,7 +67,7 @@ namespace WordProcessingWpfTask.ViewModel
 				async () =>
 				{
 					var idArray = TextFilesCollection.Select(textFile => textFile.Id);
-					await _redactor.RemoveWordsInsideSeveralTextFilesParallelAsync(idArray, _lettersCount);
+					await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(idArray, _lettersCount);
 				},
 				obj =>
 				{
@@ -98,7 +98,7 @@ namespace WordProcessingWpfTask.ViewModel
 				return _removeMarksAsync = new AsyncCommand(async () =>
 				{
 					var idArray = TextFilesCollection.Select(textFile => textFile.Id);
-					await _redactor.RemoveAllMarksInsideSeveralTextFilesParallelAsync(idArray);
+					await _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(idArray);
 				},
 				obj =>
 				{
