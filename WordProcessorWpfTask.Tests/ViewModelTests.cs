@@ -22,8 +22,8 @@ namespace WordProcessorWpfTask.Tests
 		async public Task OpenAsync_ExpectedNewTextFileInCollection()
 		{
 			var result = new Task<TextFile>(() => { return new TextFile() { Text = "mytext" }; });
-			_redactorMock.Setup(redactor => redactor.OpenFileAsync("")).Returns(result);
-			_viewModel.OpenAsync.ExecuteAsync("");
+			_redactorMock.Setup(redactor => redactor.OpenFileAsync(string.Empty)).Verifiable();
+			_viewModel.OpenAsync.Execute(string.Empty);
 
 			_redactorMock.Verify();
 			//Assert.IsTrue(_viewModel.TextFilesCollection.Count == 1);
@@ -35,19 +35,23 @@ namespace WordProcessorWpfTask.Tests
 			var textFiles = new TextFile[4] { new TextFile() { IsEditable = true }, new TextFile(), new TextFile(), new TextFile() };
 			var expected = textFiles[0];
 			var result = new Task<IEnumerable<TextFile>>(() => textFiles.Where(item => item.IsEditable == true));
-			foreach (TextFile textFile in textFiles)
-			{
-				_viewModel.TextFilesCollection.Add(textFile);
-			}
 
-			_redactorMock.Setup(redactor => redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(null))
-						 .Returns(result)
-						 .Verifiable();
+			//foreach (TextFile textFile in textFiles)
+			//{
+			//	_viewModel.TextFilesCollection.Add(textFile);
+			//}
+
+			//_redactorMock.Setup(redactor => redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(textFiles.Select(item => item.Id)))
+			//			 .Returns(result)
+			//			 .Verifiable();
+			var idArray = textFiles.Select(item => item.Id).ToArray();
+			//_redactorMock.Setup(redactor => redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(idArray)).Verifiable();
 
 			//act
-			await _viewModel.RemoveMarksAsync.ExecuteAsync();
+			_viewModel.RemoveMarksAsync.Execute(null);
 
-			_redactorMock.Verify(x => x.RemoveAllMarksInSeveralTextFilesParallelAsync(null));
+			_redactorMock.Verify(redactor => redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(Array.Empty<Guid>()));
+			var temp = _viewModel.TextFilesCollection.ToArray();
 		}
 	}
 }

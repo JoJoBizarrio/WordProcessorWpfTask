@@ -97,7 +97,7 @@ namespace WordProcessingWpfTask.ViewModel
 
 				return _removeMarksAsync = new AsyncCommand(async () =>
 				{
-					var idArray = TextFilesCollection.Select(textFile => textFile.Id);
+					var idArray = TextFilesCollection.Select(textFile => textFile.Id).ToArray();
 					await _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(idArray);
 				},
 				obj =>
