@@ -17,7 +17,7 @@ jobs:
     runs-on: windows-latest 
                              
     env:
-      Solution_Name: WordProcessorWpfTask.sln                       
+      Solution_Name: WordProcessingWpfTask.sln                       
       Test_Project_Path: WordProcessorWpfTask.Tests.csproj         
       
     steps:
