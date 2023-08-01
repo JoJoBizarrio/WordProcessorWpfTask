@@ -71,6 +71,7 @@ namespace WordProcessingWpfTask.Model
 			{
 				return true;
 			}
+
 			if (ReferenceEquals(null, obj) || obj.GetType() != GetType())
 			{
 				return false;
