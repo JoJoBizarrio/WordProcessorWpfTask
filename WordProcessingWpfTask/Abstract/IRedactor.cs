@@ -7,18 +7,19 @@ using WordProcessingWpfTask.Model;
 
 namespace WordProcessingWpfTask.Abstract
 {
-	internal interface IRedactor
+	public interface IRedactor
 	{
-		Task<string> RemoveWordsParallelAsync(Guid id, int lettersCount);
-		Task RemoveWordsInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int lettersCount);
+		IEnumerable<TextFile> TextFiles { get; }
+		Task<TextFile> RemoveWordsParallelAsync(Guid id, int lettersCount);
+		Task<IEnumerable<TextFile>> RemoveWordsInSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int lettersCount);
 
-		Task<string> RemoveAllMarksParallelAsync(Guid id);
-		Task RemoveAllMarksInsideSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray);
+		Task<TextFile> RemoveAllMarksParallelAsync(Guid id);
+		Task<IEnumerable<TextFile>> RemoveAllMarksInSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray);
 
 		Task<TextFile> OpenFileAsync(string path);
-
 		Task SaveFileAsync(Guid id, string path);
 
+		void Add(TextFile textFile);
 		bool Remove(Guid id);
 	}
 }
