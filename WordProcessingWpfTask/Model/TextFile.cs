@@ -13,13 +13,6 @@ namespace WordProcessingWpfTask.Model
 	{
 		public TextFile() { }
 
-		public TextFile(string fileName = "", string filePath = "", string text = "")
-		{
-			Title = fileName;
-			FilePath = filePath;
-			Text = text;
-		}
-
 		public Guid Id { get; } = Guid.NewGuid();
 
 		private bool _isEditable;

@@ -127,9 +127,10 @@ namespace WordProcessorWpfTask.Tests
 
 			Assert.That(actual.First().Text, Is.EqualTo(expected));
 		}
-		#endregion
+        #endregion
 
-		[Test]
+        #region operation with files
+        [Test]
 		[Category("OperationWithFile")]
 		async public Task SaveFileAsync()
 		{
@@ -144,7 +145,7 @@ namespace WordProcessorWpfTask.Tests
 
 			await _redactor.SaveFileAsync(textFile.Id, textFile.FilePath);
 
-			Assert.IsTrue(File.Exists(textFile.FilePath));
+			Assert.That(File.Exists(textFile.FilePath), Is.True);
 		}
 
 		[Test]
@@ -156,7 +157,7 @@ namespace WordProcessorWpfTask.Tests
 
 			var textFile = await _redactor.OpenFileAsync(path);
 
-			Assert.IsTrue(File.Exists(textFile.FilePath));
+			Assert.That(File.Exists(textFile.FilePath), Is.True);
 		}
 
 		[Test]
@@ -165,9 +166,10 @@ namespace WordProcessorWpfTask.Tests
 		{
 			var wrongPath = Environment.CurrentDirectory;
 
-			AsyncTestDelegate testDelegate = async () => { await _redactor.OpenFileAsync(wrongPath); };
+			AsyncTestDelegate testDelegate = async () => { await _redactor.OpenFileAsync(wrongPath); }; //async Task testDelegate() { await _redactor.OpenFileAsync(wrongPath); } wtf?
 
-			Assert.ThrowsAsync<FileNotFoundException>(testDelegate);
+            Assert.ThrowsAsync<FileNotFoundException>(testDelegate);
 		}
-	}
+        #endregion
+    }
 }
