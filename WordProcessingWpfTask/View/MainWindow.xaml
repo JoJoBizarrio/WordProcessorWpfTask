@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:WordProcessingWpfTask.View"
         xmlns:vm="clr-namespace:WordProcessingWpfTask.ViewModel"
+        
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         x:Name="RedactorMainWindow">
@@ -46,12 +47,11 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <TabControl x:Name="RedactorTabControl" 
+                            views:TabContent.IsCached="True"
                             SelectedIndex="0" 
                             ItemsSource="{Binding TextFilesCollection}"
-                            SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}"
-                            SelectionChanged="RedactorTabControl_SelectionChanged"
-                            >
-                    
+                            SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}"                            >
+
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" ScrollViewer.CanContentScroll="True" Margin="2">
@@ -73,7 +73,7 @@
                             </StackPanel>
                         </DataTemplate>
                     </TabControl.ItemTemplate>
-                    <TabControl.ContentTemplate>
+                    <views:TabContent.Template>
                         <DataTemplate>
                             <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      AcceptsReturn="True"
@@ -83,7 +83,7 @@
                                      TextWrapping="NoWrap" 
                                      Margin="3"/>
                         </DataTemplate>
-                    </TabControl.ContentTemplate>
+                    </views:TabContent.Template>
                 </TabControl>
             </Grid>
 
