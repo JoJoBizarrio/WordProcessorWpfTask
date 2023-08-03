@@ -48,7 +48,10 @@
                 <TabControl x:Name="RedactorTabControl" 
                             SelectedIndex="0" 
                             ItemsSource="{Binding TextFilesCollection}"
-                            SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}">
+                            SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}"
+                            SelectionChanged="RedactorTabControl_SelectionChanged"
+                            >
+                    
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" ScrollViewer.CanContentScroll="True" Margin="2">
