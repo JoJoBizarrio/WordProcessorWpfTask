@@ -1,9 +1,5 @@
-﻿using System.IO;
-using System;
-using System.Windows;
+﻿using System.Windows;
 using Microsoft.Win32;
-using System.Collections.Generic;
-using System.Windows.Controls;
 
 namespace WordProcessingWpfTask.View
 {

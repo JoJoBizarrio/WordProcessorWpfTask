@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -146,6 +145,7 @@ namespace WordProcessingWpfTask.Model
 			using (StreamReader streamReader = new StreamReader(path))
 			{
 				var temp = await streamReader.ReadToEndAsync();
+
 				var newTextFile = new TextFile()
 				{
 					Title = Path.GetFileNameWithoutExtension(path),
