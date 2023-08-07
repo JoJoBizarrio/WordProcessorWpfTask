@@ -4,8 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:WordProcessingWpfTask.View"
-        xmlns:vm="clr-namespace:WordProcessingWpfTask.ViewModel"
-        
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         x:Name="RedactorMainWindow">
@@ -50,8 +48,9 @@
                             views:TabContent.IsCached="True"
                             SelectedIndex="0" 
                             ItemsSource="{Binding TextFilesCollection}"
-                            SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}"                            >
-
+                            SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}"
+                            BorderBrush="{x:Null}" 
+                            TabStripPlacement="Top">
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" ScrollViewer.CanContentScroll="True" Margin="2">
@@ -61,7 +60,8 @@
 
                                 <TextBlock Text="{Binding Title}" 
                                            Margin="0,0,10,0"
-                                           VerticalAlignment="Center"/>
+                                           VerticalAlignment="Center"
+                                           MinWidth="30"/>
 
                                 <Button Content="X" 
                                         Width="18"
@@ -73,15 +73,23 @@
                             </StackPanel>
                         </DataTemplate>
                     </TabControl.ItemTemplate>
+
                     <views:TabContent.Template>
                         <DataTemplate>
-                            <TextBox Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     AcceptsReturn="True"
-                                     AcceptsTab="True"
-                                     VerticalScrollBarVisibility="Auto"
-                                     HorizontalScrollBarVisibility="Auto"
-                                     TextWrapping="NoWrap" 
-                                     Margin="3"/>
+                            <Border BorderBrush="DarkOrange" BorderThickness="2" CornerRadius="15">
+                                <RichTextBox VerticalScrollBarVisibility="Auto"
+                                             HorizontalScrollBarVisibility="Auto"
+                                             Margin="3"
+                                             BorderThickness="0">
+                                    <RichTextBox.Document>
+                                        <FlowDocument>
+                                            <Paragraph>
+                                                <Run Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                            </Paragraph>
+                                        </FlowDocument>
+                                    </RichTextBox.Document>
+                                </RichTextBox>
+                            </Border>
                         </DataTemplate>
                     </views:TabContent.Template>
                 </TabControl>
