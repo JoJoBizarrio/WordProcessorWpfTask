@@ -4,6 +4,8 @@ VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordProcessingWpfTask", "WordProcessingWpfTask\WordProcessingWpfTask.csproj", "{6B79CE2A-93F8-4702-BA33-16EEA18CB999}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordProcessorWpfTask.Tests", "WordProcessorWpfTask.Tests\WordProcessorWpfTask.Tests.csproj", "{EBA04DA5-97AB-4F58-8A81-7A47FEE40768}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
