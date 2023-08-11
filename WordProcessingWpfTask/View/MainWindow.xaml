@@ -87,11 +87,6 @@
                                         <FlowDocument>
                                             <Paragraph>
                                                 <Run Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
-                                                    <behaviors:Interaction.Triggers>
-                                                        <behaviors:EventTrigger EventName="Scroll">
-                                                            <behaviors:InvokeCommandAction Command="{Binding UpdateText, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=views:MainWindow}}"/>
-                                                        </behaviors:EventTrigger>
-                                                    </behaviors:Interaction.Triggers>
                                                 </Run>
                                             </Paragraph>
                                         </FlowDocument>
