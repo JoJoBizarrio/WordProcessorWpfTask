@@ -78,21 +78,27 @@
 
                     <views:TabContent.Template>
                         <DataTemplate>
-                            <Border BorderBrush="DarkOrange" BorderThickness="2" CornerRadius="15">
-                                <RichTextBox VerticalScrollBarVisibility="Auto"
-                                             HorizontalScrollBarVisibility="Auto"
-                                             Margin="3"
-                                             BorderThickness="0" ScrollBar.Scroll="RichTextBox_Scroll">
-                                    <RichTextBox.Document>
-                                        <FlowDocument>
-                                            <Paragraph>
-                                                <Run Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
-                                                </Run>
-                                            </Paragraph>
-                                        </FlowDocument>
-                                    </RichTextBox.Document>
-                                </RichTextBox>
-                            </Border>
+                            <RichTextBox VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Auto"
+                                         ScrollBar.Scroll="RichTextBox_Scroll">
+
+                                <behaviors:Interaction.Triggers>
+                                    <behaviors:EventTrigger EventName="MouseWheel">
+                                        <behaviors:InvokeCommandAction 
+                                            Command="{Binding DataContext.UpdateText, RelativeSource={RelativeSource AncestorType=views:MainWindow}}"
+                                            CommandParameter="{Binding ScrollPosition, RelativeSource={RelativeSource AncestorType=views:MainWindow}}"/>
+                                    </behaviors:EventTrigger>
+                                </behaviors:Interaction.Triggers>
+
+                                <RichTextBox.Document>
+                                    <FlowDocument>
+                                        <Paragraph>
+                                            <Run Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
+                                            </Run>
+                                        </Paragraph>
+                                    </FlowDocument>
+                                </RichTextBox.Document>
+                            </RichTextBox>
                         </DataTemplate>
                     </views:TabContent.Template>
                 </TabControl>

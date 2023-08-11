@@ -9,13 +9,10 @@ namespace WordProcessingWpfTask.View
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		public MainWindowViewModel _mainWindowViewModel => (MainWindowViewModel)DataContext;
-
-        public MainWindow()
+		public MainWindow()
 		{
 			InitializeComponent();
-
-        }
+		}
 
 		public string FilePath
 		{
@@ -28,6 +25,18 @@ namespace WordProcessingWpfTask.View
 			typeof(string),
 			typeof(MainWindow),
 			new PropertyMetadata(default(string)));
+
+		public double ScrollPosition
+		{
+			get => (double)GetValue(ScrollPositionProperty);
+			set => SetValue(ScrollPositionProperty, value);
+		}
+
+		public static readonly DependencyProperty ScrollPositionProperty = DependencyProperty.Register(
+			nameof(ScrollPosition),
+			typeof(double),
+			typeof(MainWindow),
+			new PropertyMetadata(default(double)));
 
 		private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
 		{
@@ -70,10 +79,9 @@ namespace WordProcessingWpfTask.View
 			}
 		}
 
-        private void RichTextBox_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
-        {
-
-            _mainWindowViewModel.OnScroll(e.NewValue);
-        }
-    }
+		private void RichTextBox_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
+		{
+			ScrollPosition = e.NewValue;
+		}
+	}
 }
