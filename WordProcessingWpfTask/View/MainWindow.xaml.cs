@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Microsoft.Win32;
+using WordProcessingWpfTask.ViewModel;
 
 namespace WordProcessingWpfTask.View
 {
@@ -8,10 +9,13 @@ namespace WordProcessingWpfTask.View
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		public MainWindow()
+		public MainWindowViewModel _mainWindowViewModel => (MainWindowViewModel)DataContext;
+
+        public MainWindow()
 		{
 			InitializeComponent();
-		}
+
+        }
 
 		public string FilePath
 		{
@@ -65,5 +69,11 @@ namespace WordProcessingWpfTask.View
 				FilePath = null;
 			}
 		}
-	}
+
+        private void RichTextBox_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
+        {
+
+            _mainWindowViewModel.OnScroll(e.NewValue);
+        }
+    }
 }

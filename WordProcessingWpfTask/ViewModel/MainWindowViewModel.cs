@@ -199,5 +199,13 @@ namespace WordProcessingWpfTask.ViewModel
             RemoveMarksAsync.RaiseCanExecuteChanged();
             RemoveWordsAsync.RaiseCanExecuteChanged();
         }
+
+        private ICommand _updateText;
+        public ICommand UpdateText => _updateText ??= new RelayCommand(obj => { MessageBox.Show("work"); });
+
+        public void OnScroll(double value)
+        {
+            _redactor.ReadAsync(SelectedTextFile, SelectedTextFile.FilePath, (int)value, 100);
+        }
     }
 }

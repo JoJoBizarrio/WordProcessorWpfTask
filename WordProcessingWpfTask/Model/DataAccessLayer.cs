@@ -22,5 +22,15 @@ namespace WordProcessingWpfTask.Model
         {
             return null;
         }
+
+        async public Task<string> ReadAsync(string path, int startPos, int count)
+        {
+            using (var reader = new StreamReader(new FileStream(path, FileMode.OpenOrCreate, FileAccess.Read)))
+            {
+                var result = new char[startPos-count];
+                reader.ReadAsync(result, startPos, 50);
+                return result.ToString();
+            }
+        }
     }
 }

@@ -43,7 +43,7 @@ namespace WordProcessingWpfTask.Model
 			}
 		}
 
-		private string _filePath;
+        private string _filePath;
 		public string FilePath
 		{
 			get => _filePath;

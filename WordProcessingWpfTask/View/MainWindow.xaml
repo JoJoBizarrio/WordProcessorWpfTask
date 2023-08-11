@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:WordProcessingWpfTask.View"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         x:Name="RedactorMainWindow">
@@ -80,11 +82,17 @@
                                 <RichTextBox VerticalScrollBarVisibility="Auto"
                                              HorizontalScrollBarVisibility="Auto"
                                              Margin="3"
-                                             BorderThickness="0">
+                                             BorderThickness="0" ScrollBar.Scroll="RichTextBox_Scroll">
                                     <RichTextBox.Document>
                                         <FlowDocument>
                                             <Paragraph>
-                                                <Run Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                <Run Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
+                                                    <behaviors:Interaction.Triggers>
+                                                        <behaviors:EventTrigger EventName="Scroll">
+                                                            <behaviors:InvokeCommandAction Command="{Binding UpdateText, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=views:MainWindow}}"/>
+                                                        </behaviors:EventTrigger>
+                                                    </behaviors:Interaction.Triggers>
+                                                </Run>
                                             </Paragraph>
                                         </FlowDocument>
                                     </RichTextBox.Document>

@@ -18,5 +18,7 @@ namespace WordProcessingWpfTask.Abstract
 
 		void Add(TextFile textFile);
 		bool Remove(Guid id);
-	}
+
+		public Task ReadAsync(TextFile textFile, string path, int startPos, int count);
+    }
 }
