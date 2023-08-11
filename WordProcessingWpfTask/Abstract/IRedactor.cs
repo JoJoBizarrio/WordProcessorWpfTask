@@ -7,7 +7,6 @@ namespace WordProcessingWpfTask.Abstract
 {
 	public interface IRedactor
 	{
-		IEnumerable<TextFile> TextFiles { get; }
 		Task<TextFile> RemoveWordsParallelAsync(Guid id, int lettersCount);
 		Task<IEnumerable<TextFile>> RemoveWordsInSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int lettersCount);
 

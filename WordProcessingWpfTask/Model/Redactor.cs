@@ -15,8 +15,6 @@ namespace WordProcessingWpfTask.Model
 
 		private readonly IDictionary<Guid, TextFile> _idKeyTextFileValueDictionary = new Dictionary<Guid, TextFile>();
 
-		public IEnumerable<TextFile> TextFiles => _idKeyTextFileValueDictionary.Values.ToImmutableArray();
-
 		#region operations of remove
 		#region marks
 		async public Task<IEnumerable<TextFile>> RemoveAllMarksInSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray)
@@ -142,14 +140,14 @@ namespace WordProcessingWpfTask.Model
 				throw new FileNotFoundException("File isnt exists by path.", Path.GetFileName(path));
 			}
 
-			using (StreamReader streamReader = new StreamReader(path))
-			{
-				var temp = await streamReader.ReadToEndAsync();
+            using (var reader = new StreamReader(new BufferedStream(new FileStream(path, FileMode.Open, FileAccess.Read), 4096)))
+            {
+				var text = await reader.ReadToEndAsync();
 
 				var newTextFile = new TextFile()
 				{
 					Title = Path.GetFileNameWithoutExtension(path),
-					Text = temp,
+					Text = text,
 					FilePath = path
 				};
 

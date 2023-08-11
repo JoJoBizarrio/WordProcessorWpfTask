@@ -7,13 +7,14 @@ using System.Windows.Markup;
 
 namespace WordProcessingWpfTask.View
 {
-	/// <summary>
-	/// Attached properties for persistent tab control
-	/// </summary>
-	/// <remarks>By default WPF TabControl bound to an ItemsSource destroys visual state of invisible tabs. 
-	/// Set ikriv:TabContent.IsCached="True" to preserve visual state of each tab.
-	/// </remarks>
-	public static class TabContent
+    // class-fix for TabControl by Code-project: thttps://www.codeproject.com/Articles/460989/WPF-TabControl-Turning-Off-Tab-Virtualization
+    /// <summary>
+    /// Attached properties for persistent tab control
+    /// </summary>
+    /// <remarks>By default WPF TabControl bound to an ItemsSource destroys visual state of invisible tabs. 
+    /// Set ikriv:TabContent.IsCached="True" to preserve visual state of each tab.
+    /// </remarks>
+    public static class TabContent
 	{
 		public static bool GetIsCached(DependencyObject obj)
 		{
