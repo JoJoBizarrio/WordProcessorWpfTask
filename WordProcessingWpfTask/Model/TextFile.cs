@@ -43,6 +43,17 @@ namespace WordProcessingWpfTask.Model
 			}
 		}
 
+		private double _currentPosition;
+		public double CurrentPosition
+		{
+			get => _currentPosition;
+			set
+			{
+				_currentPosition = value;
+				OnPropertyChanged();
+			}
+		}
+
 		private string _filePath;
 		public string FilePath
 		{
@@ -53,6 +64,10 @@ namespace WordProcessingWpfTask.Model
 				OnPropertyChanged();
 			}
 		}
+
+		public string TempFilePath;
+
+		public string Extension;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")

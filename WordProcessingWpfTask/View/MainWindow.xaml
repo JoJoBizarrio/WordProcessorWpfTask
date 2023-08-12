@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:WordProcessingWpfTask.View"
+        xmlns:beh="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:cmd="clr-namespace:WordProcessingWpfTask.Command"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         x:Name="RedactorMainWindow">
@@ -45,7 +47,6 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <TabControl x:Name="RedactorTabControl" 
-                            views:TabContent.IsCached="True"
                             SelectedIndex="0" 
                             ItemsSource="{Binding TextFilesCollection}"
                             SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}"
@@ -74,24 +75,18 @@
                         </DataTemplate>
                     </TabControl.ItemTemplate>
 
-                    <views:TabContent.Template>
+                    <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="DarkOrange" BorderThickness="2" CornerRadius="15">
-                                <RichTextBox VerticalScrollBarVisibility="Auto"
-                                             HorizontalScrollBarVisibility="Auto"
-                                             Margin="3"
-                                             BorderThickness="0">
-                                    <RichTextBox.Document>
-                                        <FlowDocument>
-                                            <Paragraph>
-                                                <Run Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                            </Paragraph>
-                                        </FlowDocument>
-                                    </RichTextBox.Document>
-                                </RichTextBox>
-                            </Border>
+                            <TextBox VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     Margin="3"
+                                     BorderThickness="0"
+                                     AcceptsReturn="True"
+                                     AcceptsTab="True"
+                                     Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
+                            </TextBox>
                         </DataTemplate>
-                    </views:TabContent.Template>
+                    </TabControl.ContentTemplate>
                 </TabControl>
             </Grid>
 
