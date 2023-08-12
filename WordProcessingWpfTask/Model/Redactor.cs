@@ -160,7 +160,7 @@ namespace WordProcessingWpfTask.Model
 
 		public void ReadAsync(TextFile textFile, string path, double value)
 		{
-			var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, false);
+			var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1024, true);
 
 			using (var reader = new StreamReader(fileStream))
 			{
@@ -171,26 +171,11 @@ namespace WordProcessingWpfTask.Model
 				var length = _previous + (int)value / 100 + 20;
 				_previous = length;
 
-				//if (textFile.Text != null) { startIndex = textFile.Text.Length; length += startIndex; result = new byte[length]; } //
-				while ((currentLine = reader.ReadLine()) != null && startIndex < length)
-				{
-					startIndex++;
-
-					if (startIndex > (int)_previous / 10)
-					{
-						sb.Append(currentLine);
-					}
-				}
-
-				//if (textFile.Text != null && textFile.Text.Length != 0)
-				//{
-				//	
-				//}
-
-				//reader.Read(result, 0, length);
-
-				//textFile.Text += new string(ASCIIEncoding.UTF8.GetString(result));
-				textFile.Text = sb.ToString();
+				//reader.Position = 1000;
+				reader.BaseStream.Position = 0;
+				//reader.Read(result);
+				
+				textFile.Text = ASCIIEncoding.UTF8.GetString(result);
 				reader.Dispose();
 			}
 
