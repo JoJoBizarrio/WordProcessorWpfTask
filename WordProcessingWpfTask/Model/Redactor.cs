@@ -20,7 +20,7 @@ namespace WordProcessingWpfTask.Model
 				throw new ArgumentNullException(nameof(textFiles), "textFiles is null.");
 			}
 
-			if (textFiles.Count() == 0)
+			if (!textFiles.Any())
 			{
 				return;
 			}
@@ -53,6 +53,7 @@ namespace WordProcessingWpfTask.Model
 					writer.WriteLine(new String(filter.ToArray()));
 				}
 
+				File.Delete(textFile.TempFilePath);
 				textFile.TempFilePath = newTempPath;
 			});
 		}
@@ -81,12 +82,11 @@ namespace WordProcessingWpfTask.Model
 			}
 
 			CheckLettersCount(lettersCount);
+			var newTempPath = GetTempPath(textFile.TempFilePath);
+			File.Copy(textFile.TempFilePath, newTempPath, true);
 
 			await Task.Run(() =>
 			{
-				var newTempPath = GetTempPath(textFile.TempFilePath);
-				File.Copy(textFile.TempFilePath, newTempPath, true);
-
 				using var reader = new StreamReader(textFile.TempFilePath);
 				using var writer = new StreamWriter(newTempPath);
 
@@ -96,9 +96,10 @@ namespace WordProcessingWpfTask.Model
 				{
 					writer.WriteLine(RemoveWords(currentLine, lettersCount));
 				}
-
-				textFile.TempFilePath = newTempPath;
 			});
+
+			File.Delete(textFile.TempFilePath);
+			textFile.TempFilePath = newTempPath;
 		}
 
 		private string RemoveWords(string line, int lettersCount)
@@ -144,7 +145,6 @@ namespace WordProcessingWpfTask.Model
 			CheckPath(path);
 
 			File.Copy(textFile.TempFilePath, path, true);
-			File.Delete(textFile.TempFilePath);
 		}
 
 		public TextFile OpenFile(string path)
