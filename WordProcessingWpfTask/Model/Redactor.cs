@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using WordProcessingWpfTask.Abstract;
 
@@ -9,6 +10,8 @@ namespace WordProcessingWpfTask.Model
 {
 	public class Redactor : IRedactor
 	{
+		private readonly IDataAccessLayer _dataAccessLayer = new DataAccessLayer();
+
 		public Redactor() { }
 
 		#region operations of remove
@@ -74,6 +77,64 @@ namespace WordProcessingWpfTask.Model
 			await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
 		}
 
+		//async public Task RemoveWordsParallelAsync(TextFile textFile, int lettersCount)
+		//{
+		//	if (Equals(textFile, null))
+		//	{
+		//		throw new ArgumentNullException(nameof(textFile), "textFile is null.");
+		//	}
+
+		//	CheckLettersCount(lettersCount);
+		//	var newTempPath = GetTempPath(textFile.TempFilePath);
+		//	File.Copy(textFile.TempFilePath, newTempPath, true);
+
+		//	await Task.Run(() =>
+		//	{
+		//		using var reader = new StreamReader(textFile.TempFilePath);
+		//		using var writer = new StreamWriter(newTempPath);
+
+		//		var currentLine = "";
+
+		//		while ((currentLine = reader.ReadLine()) != null)
+		//		{
+		//			writer.WriteLine(RemoveWords(currentLine, lettersCount));
+		//		}
+		//	});
+
+		//	File.Delete(textFile.TempFilePath);
+		//	textFile.TempFilePath = newTempPath;
+		//}
+
+		//async public Task RemoveWordsParallelAsync(TextFile textFile, int lettersCount)
+		//{
+		//	if (Equals(textFile, null))
+		//	{
+		//		throw new ArgumentNullException(nameof(textFile), "textFile is null.");
+		//	}
+
+		//	CheckLettersCount(lettersCount);
+		//	var newTempPath = GetTempPath(textFile.TempFilePath);
+		//	File.Copy(textFile.TempFilePath, newTempPath, true);
+
+		//	await Task.Run(async () =>
+		//	{
+		//		var position = 0;
+		//		var bytesReadCount = 0;
+		//		var bytesRead = new byte[2048];
+		//		var editedText = "";
+
+		//		while ((bytesReadCount = await _dataAccessLayer.ReadAsync(textFile.TempFilePath, bytesRead, position, 2048)) > 0)
+		//		{
+		//			position += bytesReadCount;
+		//			editedText = RemoveWords(ASCIIEncoding.ASCII.GetString(bytesRead), lettersCount);
+		//			await _dataAccessLayer.WriteAsync(newTempPath, editedText);
+		//		}
+		//	});
+
+		//	File.Delete(textFile.TempFilePath);
+		//	textFile.TempFilePath = newTempPath;
+		//}
+
 		async public Task RemoveWordsParallelAsync(TextFile textFile, int lettersCount)
 		{
 			if (Equals(textFile, null))
@@ -83,18 +144,17 @@ namespace WordProcessingWpfTask.Model
 
 			CheckLettersCount(lettersCount);
 			var newTempPath = GetTempPath(textFile.TempFilePath);
-			File.Copy(textFile.TempFilePath, newTempPath, true);
+			var fs = File.Create(newTempPath);
+			fs.Dispose();
 
 			await Task.Run(() =>
 			{
-				using var reader = new StreamReader(textFile.TempFilePath);
-				using var writer = new StreamWriter(newTempPath);
+				var lines = _dataAccessLayer.ReadLines(textFile.TempFilePath);
+				var result = new List<string>();
 
-				var currentLine = "";
-
-				while ((currentLine = reader.ReadLine()) != null)
+				foreach (var line in lines)
 				{
-					writer.WriteLine(RemoveWords(currentLine, lettersCount));
+					_dataAccessLayer.Write(newTempPath, RemoveWords(line, lettersCount));
 				}
 			});
 
