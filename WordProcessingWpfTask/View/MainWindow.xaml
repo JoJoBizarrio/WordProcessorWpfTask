@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:WordProcessingWpfTask.View"
         xmlns:beh="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:cmd="clr-namespace:WordProcessingWpfTask.Command"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         x:Name="RedactorMainWindow">
@@ -70,7 +69,7 @@
                                         Margin="0,3,3,0"
                                         VerticalAlignment="Center"
                                         Command="{Binding DataContext.Close, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
-                                        CommandParameter="{Binding SelectedItem, ElementName=RedactorTabControl}"/>
+                                        CommandParameter="{Binding Id}"/>
                             </StackPanel>
                         </DataTemplate>
                     </TabControl.ItemTemplate>
