@@ -53,103 +53,59 @@ namespace WordProcessingWpfTask.ViewModel
 
         // Remove Opeartion
         private IAsyncCommand _removeWordsAsync;
-        public IAsyncCommand RemoveWordsAsync
+        public IAsyncCommand RemoveWordsAsync => _removeWordsAsync ??= new AsyncCommand(
+        async () =>
         {
-            get
+            await _redactor.RemoveWordsParallelAsync(TextFilesCollection.Where(item => item.IsEditable), _lettersCount);
+        },
+        obj =>
+        {
+            if (TextFilesCollection.Count == 0
+            || !TextFilesCollection.Any(item => item.IsEditable == true)
+            || string.IsNullOrEmpty(LettersCountText)
+            || !int.TryParse(LettersCountText, out int lettersCount)
+            || lettersCount == 0)
             {
-                if (_removeWordsAsync != null)
-                {
-                    return _removeWordsAsync;
-                }
-
-                return _removeWordsAsync = new AsyncCommand(
-                async () =>
-                {
-                    await _redactor.RemoveWordsParallelAsync(TextFilesCollection.Where(item => item.IsEditable), _lettersCount);
-                },
-                obj =>
-                {
-                    if (TextFilesCollection.Count == 0
-                    || !TextFilesCollection.Any(item => item.IsEditable == true)
-                    || string.IsNullOrEmpty(LettersCountText)
-                    || !int.TryParse(LettersCountText, out int lettersCount)
-                    || lettersCount == 0)
-                    {
-                        return false;
-                    }
-
-                    return true;
-                });
+                return false;
             }
-        }
+
+            return true;
+        });
 
         private IAsyncCommand _removeMarksAsync;
-        public IAsyncCommand RemoveMarksAsync
+        public IAsyncCommand RemoveMarksAsync => _removeMarksAsync ??= new AsyncCommand(async () =>
         {
-            get
+            var textFiles = TextFilesCollection.Where(textFile => textFile.IsEditable);
+            await _redactor.RemoveAllMarksParallelAsync(textFiles);
+        },
+        obj =>
+        {
+            if (!TextFilesCollection.Any(item => item.IsEditable == true) || TextFilesCollection.Count == 0)
             {
-                if (_removeMarksAsync != null)
-                {
-                    return _removeMarksAsync;
-                }
-
-                return _removeMarksAsync = new AsyncCommand(async () =>
-                {
-                    var textFiles = TextFilesCollection.Where(textFile => textFile.IsEditable);
-                    await _redactor.RemoveAllMarksParallelAsync(textFiles);
-                },
-                obj =>
-                {
-                    if (!TextFilesCollection.Any(item => item.IsEditable == true) || TextFilesCollection.Count == 0)
-                    {
-                        return false;
-                    }
-
-                    return true;
-                });
+                return false;
             }
-        }
+
+            return true;
+        });
 
         // open/save opertaion
-        private IAsyncCommand<object> _openAsync;
-        public IAsyncCommand<object> OpenAsync
+        private RelayCommand<object> _openAsync;
+        public RelayCommand<object> OpenAsync => _openAsync ??= new RelayCommand<object>(obj =>
         {
-            get
+            if (obj is string filePath)
             {
-                if (_openAsync != null)
-                {
-                    return _openAsync;
-                }
-
-                return _openAsync = new AsyncCommand<object>(async obj =>
-                {
-                    if (obj is string filePath)
-                    {
-                        TextFilesCollection.Add(_redactor.OpenFile(filePath));
-                    }
-                });
+                TextFilesCollection.Add(_redactor.OpenFile(filePath));
             }
-        }
+        });
 
         private IRelayCommand<object> _saveAsync { get; set; }
-        public IRelayCommand<object> SaveAsync
+        public IRelayCommand<object> SaveAsync => _saveAsync ??= new RelayCommand<object>(obj =>
         {
-            get
+            if (obj is string filePath && SelectedTextFile != null)
             {
-                if (_saveAsync != null)
-                {
-                    return _saveAsync;
-                }
-
-                return _saveAsync = new RelayCommand<object>(obj =>
-                {
-                    if (obj is string filePath && SelectedTextFile != null)
-                    {
-                        _redactor.SaveFile(SelectedTextFile, filePath);
-                    }
-                });
+                _redactor.SaveFile(SelectedTextFile, filePath);
             }
-        }
+        });
 
         // supporting
         private IRelayCommand<object> _close;
@@ -173,7 +129,6 @@ namespace WordProcessingWpfTask.ViewModel
 
                 return _clear = new RelayCommand(() => SelectedTextFile.Text = null);
             }
-
         }
 
         public ICommand Quit { get; } = new RelayCommand(() => Application.Current.Shutdown());

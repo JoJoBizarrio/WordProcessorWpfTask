@@ -10,11 +10,14 @@ namespace WordProcessingWpfTask.Model
 {
     public class Redactor : IRedactor
     {
-        private readonly IFileSystem _fileSystem = new FileSystem();
+        private readonly IFileSystem _fileSystem;
 
-        object removeLocker = new();
+        private object _removeLocker = new();
 
-        public Redactor() { }
+        public Redactor(IFileSystem fileSystem)
+        {
+            _fileSystem = fileSystem;
+        }
 
         #region remove marks
         async public Task RemoveAllMarksParallelAsync(IEnumerable<TextFile> textFiles)
@@ -37,7 +40,7 @@ namespace WordProcessingWpfTask.Model
 
             await Task.Run(() =>
             {
-                lock (removeLocker)
+                lock (_removeLocker)
                 {
                     var newTempPath = GetTempPath(textFile.TempFilePath);
 
@@ -84,7 +87,7 @@ namespace WordProcessingWpfTask.Model
 
             await Task.Run(() =>
             {
-                lock (removeLocker)
+                lock (_removeLocker)
                 {
                     var newTempPath = GetTempPath(textFile.TempFilePath);
 
