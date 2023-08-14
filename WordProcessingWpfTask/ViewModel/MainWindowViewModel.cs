@@ -118,28 +118,15 @@ namespace WordProcessingWpfTask.ViewModel
         });
 
         private ICommand _clear;
-        public ICommand Clear
-        {
-            get
-            {
-                if (_clear != null)
-                {
-                    return _clear;
-                }
+        public ICommand Clear => _clear ??= new RelayCommand(() => SelectedTextFile.Text = null);
 
-                return _clear = new RelayCommand(() => SelectedTextFile.Text = null);
-            }
-        }
 
-        public ICommand Quit { get; } = new RelayCommand(() => Application.Current.Shutdown());
+        private ICommand _quit;
+        public ICommand Quit => _quit ??= new RelayCommand(() => Application.Current.Shutdown());
 
-        public ICommand OnChecked
-        {
-            get
-            {
-                return new RelayCommand(() => RaiseCanExecute());
-            }
-        }
+
+        private ICommand _onChecked;
+        public ICommand OnChecked => _onChecked ??= new RelayCommand(() => RaiseCanExecute());
 
         private void RaiseCanExecute()
         {
