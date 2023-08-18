@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:WordProcessingWpfTask.View"
-        xmlns:beh="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         x:Name="RedactorMainWindow">
@@ -23,9 +22,9 @@
     <DockPanel >
         <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding OpenAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}" />
+                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding Open}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}" />
                 <Separator/>
-                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding SaveAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}"/>
+                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding Save}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}"/>
                 <Separator/>
                 <MenuItem x:Name="ClearMenuItem" Header="Clear" Command="{Binding Clear}"/>
                 <MenuItem x:Name="QuitMenuItem" Header="Quit" Command="{Binding Quit}"/>
@@ -49,7 +48,6 @@
                             SelectedIndex="0" 
                             ItemsSource="{Binding TextFilesCollection}"
                             SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}"
-                            BorderBrush="{x:Null}" 
                             TabStripPlacement="Top">
                     <TabControl.ItemTemplate>
                         <DataTemplate>
@@ -107,7 +105,6 @@
                 <Button  x:Name="RemoveWordsButton" 
                          Style="{StaticResource RemoveButton}" 
                          Command="{Binding RemoveWordsAsync}"
-                         CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}"
                          Grid.Column="1" 
                          Content="Remove words" />
 

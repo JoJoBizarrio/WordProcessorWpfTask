@@ -27,7 +27,7 @@ namespace WordProcessingWpfTask.Model
 				return;
 			}
 
-			var tasks = textFiles.OrderByDescending(item => item.Title).Select(item => RemoveAllMarksParallelAsync(item));
+			var tasks = textFiles.Select(item => RemoveAllMarksParallelAsync(item));
 
 			await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
 		}
@@ -40,11 +40,11 @@ namespace WordProcessingWpfTask.Model
 			{
 				lock (textFile)
 				{
-					var newTempPath = GetTempPath(textFile.TempFilePath);
+					var outFilePath = GetOutFilePath(textFile.TempFilePath);
 
 					using (var reader = _fileSystem.File.OpenText(textFile.TempFilePath))
 					{
-						using var writer = _fileSystem.File.CreateText(newTempPath);
+						using var writer = _fileSystem.File.CreateText(outFilePath);
 
 						var currentLine = "";
 
@@ -55,8 +55,8 @@ namespace WordProcessingWpfTask.Model
 						}
 					};
 
-					_fileSystem.File.Delete(textFile.TempFilePath);
-					textFile.TempFilePath = newTempPath;
+					_fileSystem.File.Copy(outFilePath, textFile.TempFilePath, true);
+					_fileSystem.File.Delete(outFilePath);
 				}
 			});
 		}
@@ -87,11 +87,11 @@ namespace WordProcessingWpfTask.Model
 			{
 				lock (textFile)
 				{
-					var newTempPath = GetTempPath(textFile.TempFilePath);
+					var outFilePath = GetOutFilePath(textFile.TempFilePath);
 
 					using (var reader = _fileSystem.File.OpenText(textFile.TempFilePath))
 					{
-						using var writer = _fileSystem.File.CreateText(newTempPath);
+						using var writer = _fileSystem.File.CreateText(outFilePath);
 
 						var currentLine = "";
 
@@ -101,8 +101,8 @@ namespace WordProcessingWpfTask.Model
 						}
 					};
 
-					_fileSystem.File.Delete(textFile.TempFilePath);
-					textFile.TempFilePath = newTempPath;
+					_fileSystem.File.Copy(outFilePath, textFile.TempFilePath, true);
+					_fileSystem.File.Delete(outFilePath);
 				}
 			});
 		}
@@ -219,6 +219,12 @@ namespace WordProcessingWpfTask.Model
 		{
 			var extension = Path.GetExtension(path);
 			return Path.GetTempFileName().Replace(".tmp", extension);
+		}
+
+		private string GetOutFilePath(string path)
+		{
+			var extencion = Path.GetExtension(path);
+			return path.Replace(extencion, ".out" + extencion);
 		}
 		#endregion
 	}
