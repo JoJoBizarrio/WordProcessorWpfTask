@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using WordProcessingWpfTask.Abstract;
 
@@ -11,151 +10,173 @@ namespace WordProcessingWpfTask.Model
 {
 	public class Redactor : IRedactor
 	{
-		public Redactor() { }
+		private readonly IFileSystem _fileSystem;
 
-		private readonly IDictionary<Guid, TextFile> _idKeyTextFileValueDictionary = new Dictionary<Guid, TextFile>();
-
-		public IEnumerable<TextFile> TextFiles => _idKeyTextFileValueDictionary.Values.ToImmutableArray();
-
-		#region operations of remove
-		#region marks
-		async public Task<IEnumerable<TextFile>> RemoveAllMarksInSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray)
+		public Redactor(IFileSystem fileSystem)
 		{
-			if (Equals(idArray, null))
-			{
-				throw new ArgumentNullException(nameof(idArray), "idArray is null.");
-			}
-
-			if (idArray.Count() == 0)
-			{
-				return Enumerable.Empty<TextFile>();
-			}
-
-			var tasks = idArray.Select(id => RemoveAllMarksParallelAsync(id));
-
-			return await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
+			_fileSystem = fileSystem;
 		}
 
-		async public Task<TextFile> RemoveAllMarksParallelAsync(Guid id)
+		#region remove marks
+		async public Task RemoveAllMarksParallelAsync(IEnumerable<TextFile> textFiles)
 		{
-			CheckId(id);
+			CheckTextFile(textFiles);
 
-			return await Task.Run(() =>
+			if (!textFiles.Any())
 			{
-				var textFile = _idKeyTextFileValueDictionary[id];
-				var textChars = textFile.Text.ToCharArray();
-				var filter = textChars.AsParallel().AsOrdered().Where(symbol => !Char.IsPunctuation(symbol));
-				textFile.Text = new String(filter.ToArray());
+				return;
+			}
 
-				return textFile;
+			var tasks = textFiles.Select(item => RemoveAllMarksParallelAsync(item));
+
+			await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
+		}
+
+		async public Task RemoveAllMarksParallelAsync(TextFile textFile)
+		{
+			CheckTextFile(textFile);
+
+			await Task.Run(() =>
+			{
+				lock (textFile)
+				{
+					var outFilePath = GetOutFilePath(textFile.TempFilePath);
+
+					using (var reader = _fileSystem.File.OpenText(textFile.TempFilePath))
+					{
+						using var writer = _fileSystem.File.CreateText(outFilePath);
+
+						var currentLine = "";
+
+						while ((currentLine = reader.ReadLine()) != null)
+						{
+							var filter = currentLine.ToCharArray().Where(symbol => !Char.IsPunctuation(symbol));
+							writer.WriteLine(new String(filter.ToArray()));
+						}
+					};
+
+					_fileSystem.File.Copy(outFilePath, textFile.TempFilePath, true);
+					_fileSystem.File.Delete(outFilePath);
+				}
 			});
 		}
 		#endregion
 
-		#region words
-		async public Task<IEnumerable<TextFile>> RemoveWordsInSeveralTextFilesParallelAsync(IEnumerable<Guid> idArray, int lettersCount)
+		#region remove words
+		async public Task RemoveWordsParallelAsync(IEnumerable<TextFile> textFiles, int lettersCount)
 		{
-			if (idArray == null)
-			{
-				throw new ArgumentNullException(nameof(idArray), "idArray is null.");
-			}
-
+			CheckTextFile(textFiles);
 			CheckLettersCount(lettersCount);
 
-			if (lettersCount == 0 || idArray.Count() == 0)
+			if (!textFiles.Any() || lettersCount == 0)
 			{
-				return Enumerable.Empty<TextFile>();
+				return;
 			}
 
-			var tasks = idArray.Select(id => RemoveWordsParallelAsync(id, lettersCount));
+			var tasks = textFiles.Select(item => RemoveWordsParallelAsync(item, lettersCount));
 
-			return await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
+			await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
 		}
 
-		async public Task<TextFile> RemoveWordsParallelAsync(Guid id, int lettersCount)
+		async public Task RemoveWordsParallelAsync(TextFile textFile, int lettersCount)
 		{
+			CheckTextFile(textFile);
 			CheckLettersCount(lettersCount);
-			CheckId(id);
 
-			return await Task.Run(() =>
+			if (lettersCount == 0)
 			{
-				var textFile = _idKeyTextFileValueDictionary[id];
-				var stringBuilder = new StringBuilder(textFile.Text);
-				var i = 0;
-				var wordLength = 1;
+				return;
+			}
 
-				while (i < stringBuilder.Length)
+			await Task.Run(() =>
+			{
+				lock (textFile)
 				{
-					if (!char.IsLetter(stringBuilder[i]))
+					var outFilePath = GetOutFilePath(textFile.TempFilePath);
+
+					using (var reader = _fileSystem.File.OpenText(textFile.TempFilePath))
 					{
-						i++;
+						using var writer = _fileSystem.File.CreateText(outFilePath);
+
+						var currentLine = "";
+
+						while ((currentLine = reader.ReadLine()) != null)
+						{
+							writer.WriteLine(RemoveWordsAlgorithmInternal(currentLine, lettersCount));
+						}
+					};
+
+					_fileSystem.File.Copy(outFilePath, textFile.TempFilePath, true);
+					_fileSystem.File.Delete(outFilePath);
+				}
+			});
+		}
+
+		private string RemoveWordsAlgorithmInternal(string line, int lettersCount)
+		{
+			var chars = line.ToList();
+			var i = 0;
+			var wordLength = 1;
+
+			while (i < chars.Count)
+			{
+				if (!char.IsLetter(chars[i]) && !char.IsNumber(chars[i]))
+				{
+					i++;
+				}
+				else
+				{
+					for (int j = 0; i + j + 1 < chars.Count && (char.IsLetter(chars[i + j + 1]) || char.IsNumber(chars[i + j + 1])); j++)
+					{
+						wordLength++;
+					}
+
+					if (wordLength <= lettersCount)
+					{
+						chars.RemoveRange(i, wordLength);
 					}
 					else
 					{
-						for (int j = 0; i + j + 1 < stringBuilder.Length && char.IsLetter(stringBuilder[i + j + 1]); j++)
-						{
-							wordLength++;
-						}
-
-						if (wordLength <= lettersCount)
-						{
-							stringBuilder.Remove(i, wordLength);
-						}
-						else
-						{
-							i += wordLength;
-						}
-
-						wordLength = 1;
+						i += wordLength;
 					}
-				}
 
-				textFile.Text = stringBuilder.ToString();
-				return textFile;
-			});
+					wordLength = 1;
+				}
+			}
+
+			return new String(chars.ToArray());
 		}
-		#endregion
 		#endregion
 
 		#region operation with files
-		async public Task SaveFileAsync(Guid id, string path)
+		public void SaveFile(TextFile textFile, string path)
 		{
-			CheckId(id);
 			CheckPath(path);
 
-			using (var writer = new StreamWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
-			{
-				var textFile = _idKeyTextFileValueDictionary[id];
-				await writer.WriteAsync(textFile.Text);
-
-				textFile.FilePath = path;
-				textFile.Title = Path.GetFileNameWithoutExtension(path);
-			}
+			_fileSystem.File.Copy(textFile.TempFilePath, path, true);
 		}
 
-		async public Task<TextFile> OpenFileAsync(string path) //TODO: TextFileDTO ?
+		public TextFile OpenFile(string path)
 		{
 			CheckPath(path);
 
-			if (!File.Exists(path))
+			if (!_fileSystem.File.Exists(path))
 			{
 				throw new FileNotFoundException("File isnt exists by path.", Path.GetFileName(path));
 			}
 
-			using (StreamReader streamReader = new StreamReader(path))
+			var tempFilePath = GetTempPath(path);
+
+			_fileSystem.File.Copy(path, tempFilePath, true);
+
+			var newTextFile = new TextFile()
 			{
-				var temp = await streamReader.ReadToEndAsync();
+				Title = Path.GetFileNameWithoutExtension(path),
+				FilePath = path,
+				TempFilePath = tempFilePath,
+			};
 
-				var newTextFile = new TextFile()
-				{
-					Title = Path.GetFileNameWithoutExtension(path),
-					Text = temp,
-					FilePath = path
-				};
-
-				_idKeyTextFileValueDictionary.Add(newTextFile.Id, newTextFile);
-				return newTextFile;
-			}
+			return newTextFile;
 		}
 		#endregion
 
@@ -165,14 +186,6 @@ namespace WordProcessingWpfTask.Model
 			if (lettersCount < 0)
 			{
 				throw new ArgumentException($"Letters count is less zero and equal to {lettersCount}.", nameof(lettersCount));
-			}
-		}
-
-		private void CheckId(Guid id)
-		{
-			if (!_idKeyTextFileValueDictionary.TryGetValue(id, out var _))
-			{
-				throw new ArgumentException($"Dictionary hasnt item by id = {id}.", nameof(id));
 			}
 		}
 
@@ -188,25 +201,35 @@ namespace WordProcessingWpfTask.Model
 				throw new ArgumentException($"Invalid path = {path}.", nameof(path));
 			}
 		}
-		#endregion
 
-		#region suppporting
-		public void Add(TextFile textFile)
+		private void CheckTextFile(TextFile textFile)
 		{
-			if (textFile == null)
+			if (Equals(textFile, null))
 			{
-				throw new ArgumentNullException(nameof(textFile), "TextFile is null.");
-			}
-
-			if (!_idKeyTextFileValueDictionary.TryAdd(textFile.Id, textFile))
-			{
-				throw new ArgumentException("Same element already exists in redactor.", nameof(textFile));
+				throw new ArgumentNullException(nameof(textFile), "textFile is null.");
 			}
 		}
 
-		public bool Remove(Guid id)
+		private void CheckTextFile(IEnumerable<TextFile> textFiles)
 		{
-			return _idKeyTextFileValueDictionary.Remove(id);
+			if (Equals(textFiles, null))
+			{
+				throw new ArgumentNullException(nameof(textFiles), "textFiles is null.");
+			}
+		}
+		#endregion
+
+		#region other
+		private string GetTempPath(string path)
+		{
+			var extension = Path.GetExtension(path);
+			return Path.GetTempFileName().Replace(".tmp", extension);
+		}
+
+		private string GetOutFilePath(string path)
+		{
+			var extencion = Path.GetExtension(path);
+			return path.Replace(extencion, ".out" + extencion);
 		}
 		#endregion
 	}

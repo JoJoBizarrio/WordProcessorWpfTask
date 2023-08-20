@@ -5,199 +5,129 @@ using System.Windows;
 using System.Windows.Input;
 using WordProcessingWpfTask.Abstract;
 using WordProcessingWpfTask.Model;
+using CommunityToolkit.Mvvm.Input;
+using System;
 
 namespace WordProcessingWpfTask.ViewModel
 {
-    public class MainWindowViewModel : ViewModelBase
-    {
-        public MainWindowViewModel(IRedactor redactor)
-        {
-            _redactor = redactor;
-            TextFilesCollection = new ObservableCollection<TextFile>();
-        }
+	public class MainWindowViewModel : ViewModelBase
+	{
+		public MainWindowViewModel(IRedactor redactor)
+		{
+			_redactor = redactor;
+			TextFilesCollection = new ObservableCollection<TextFile>();
+		}
 
-        private readonly IRedactor _redactor;
+		private readonly IRedactor _redactor;
 
-        public ObservableCollection<TextFile> TextFilesCollection { get; set; }
+		public ObservableCollection<TextFile> TextFilesCollection { get; set; }
 
-        private int _lettersCount;
-        private string _lettersCountText;
-        public string LettersCountText
-        {
-            get => _lettersCountText;
-            set
-            {
-                Set(ref _lettersCountText, value);
+		private int _lettersCount;
+		private string _lettersCountText;
+		public string LettersCountText
+		{
+			get => _lettersCountText;
+			set
+			{
+				Set(ref _lettersCountText, value);
 
-                if (int.TryParse(_lettersCountText, out int result))
-                {
-                    _lettersCount = result;
-                }
+				if (int.TryParse(_lettersCountText, out int result))
+				{
+					_lettersCount = result;
+				}
 
-                RaiseCanExecute();
-            }
-        }
+				RaiseCanExecute();
+			}
+		}
 
-        private TextFile _selectedTextFile;
-        public TextFile SelectedTextFile
-        {
-            get => _selectedTextFile;
-            set
-            {
-                Set(ref _selectedTextFile, value);
-                RaiseCanExecute();
-            }
-        }
+		private TextFile _selectedTextFile;
+		public TextFile SelectedTextFile
+		{
+			get => _selectedTextFile;
+			set
+			{
+				Set(ref _selectedTextFile, value);
+				RaiseCanExecute();
+			}
+		}
 
-        // Remove Opeartion
-        private IAsyncCommand _removeWordsAsync;
-        public IAsyncCommand RemoveWordsAsync
-        {
-            get
-            {
-                if (_removeWordsAsync != null)
-                {
-                    return _removeWordsAsync;
-                }
+		// Remove Opeartion
+		private IAsyncCommand _removeWordsAsync;
+		public IAsyncCommand RemoveWordsAsync => _removeWordsAsync ??= new AsyncCommand(
+		async () =>
+		{
+			await _redactor.RemoveWordsParallelAsync(TextFilesCollection.Where(item => item.IsEditable), _lettersCount);
+		},
+		obj =>
+		{
+			if (TextFilesCollection.Count == 0
+			|| !TextFilesCollection.Any(item => item.IsEditable == true)
+			|| string.IsNullOrEmpty(LettersCountText)
+			|| !int.TryParse(LettersCountText, out int lettersCount)
+			|| lettersCount == 0)
+			{
+				return false;
+			}
 
-                return _removeWordsAsync = new AsyncCommand(
-                async () =>
-                {
-                    var idArray = TextFilesCollection.Where(textFile => textFile.IsEditable).Select(textFile => textFile.Id).ToArray();
-                    await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(idArray, _lettersCount);
-                },
-                obj =>
-                {
-                    if (TextFilesCollection.Count == 0
-                    || !TextFilesCollection.Any(item => item.IsEditable == true)
-                    || string.IsNullOrEmpty(LettersCountText)
-                    || !int.TryParse(LettersCountText, out int lettersCount)
-                    || lettersCount == 0)
-                    {
-                        return false;
-                    }
+			return true;
+		});
 
-                    return true;
-                });
-            }
-        }
+		private IAsyncCommand _removeMarksAsync;
+		public IAsyncCommand RemoveMarksAsync => _removeMarksAsync ??= new AsyncCommand(async () =>
+		{
+			var textFiles = TextFilesCollection.Where(textFile => textFile.IsEditable);
+			await _redactor.RemoveAllMarksParallelAsync(textFiles);
+		},
+		obj =>
+		{
+			if (!TextFilesCollection.Any(item => item.IsEditable == true) || TextFilesCollection.Count == 0)
+			{
+				return false;
+			}
 
-        private IAsyncCommand _removeMarksAsync;
-        public IAsyncCommand RemoveMarksAsync
-        {
-            get
-            {
-                if (_removeMarksAsync != null)
-                {
-                    return _removeMarksAsync;
-                }
+			return true;
+		});
 
-                return _removeMarksAsync = new AsyncCommand(async () =>
-                {
-                    var idArray = TextFilesCollection.Where(textFile => textFile.IsEditable).Select(textFile => textFile.Id).ToArray();
-                    await _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(idArray);
-                },
-                obj =>
-                {
-                    if (!TextFilesCollection.Any(item => item.IsEditable == true) || TextFilesCollection.Count == 0)
-                    {
-                        return false;
-                    }
+		// open/save opertaion
+		private IRelayCommand<object> _open;
+		public IRelayCommand<object> Open => _open ??= new RelayCommand<object>(obj =>
+		{
+			if (obj is string filePath)
+			{
+				TextFilesCollection.Add(_redactor.OpenFile(filePath));
+			}
+		});
 
-                    return true;
-                });
-            }
-        }
+		private IRelayCommand<object> _save { get; set; }
+		public IRelayCommand<object> Save => _save ??= new RelayCommand<object>(obj =>
+		{
+			if (obj is string filePath && SelectedTextFile != null)
+			{
+				_redactor.SaveFile(SelectedTextFile, filePath);
+			}
+		});
 
-        // open/save opertaion
-        private IAsyncCommand<object> _openAsync;
-        public IAsyncCommand<object> OpenAsync
-        {
-            get
-            {
-                if (_openAsync != null)
-                {
-                    return _openAsync;
-                }
+		// supporting
+		private IRelayCommand<object> _close;
+		public IRelayCommand<object> Close => _close ??= new RelayCommand<object>(obj =>
+		{
+			if (obj is Guid id)
+			{
+				TextFilesCollection.Remove(TextFilesCollection.First(item => item.Id == id));
+			}
+		});
 
-                return _openAsync = new AsyncCommand<object>(async obj =>
-                {
-                    if (obj is string filePath)
-                    {
-                        TextFilesCollection.Add(await _redactor.OpenFileAsync(filePath));
-                    }
-                });
-            }
-        }
+		private ICommand _quit;
+		public ICommand Quit => _quit ??= new RelayCommand(() => Application.Current.Shutdown());
 
-        private IAsyncCommand<object> _saveAsync { get; set; }
-        public IAsyncCommand<object> SaveAsync
-        {
-            get
-            {
-                if (_saveAsync != null)
-                {
-                    return _saveAsync;
-                }
 
-                return _saveAsync = new AsyncCommand<object>(async obj =>
-                {
-                    if (obj is string filePath)
-                    {
-                        await _redactor.SaveFileAsync(SelectedTextFile.Id, filePath);
-                    }
-                });
-            }
-        }
+		private ICommand _onChecked;
+		public ICommand OnChecked => _onChecked ??= new RelayCommand(() => RaiseCanExecute());
 
-        // supporting
-        private ICommand _close;
-        public ICommand Close
-        {
-            get
-            {
-                if (_close != null)
-                {
-                    return _close;
-                }
-
-                return _close = new RelayCommand(textFile =>
-                {
-                    TextFilesCollection.Remove((TextFile)textFile);
-                    _redactor.Remove(((TextFile)textFile).Id);
-                });
-            }
-        }
-
-        private ICommand _clear;
-        public ICommand Clear
-        {
-            get
-            {
-                if (_clear != null)
-                {
-                    return _clear;
-                }
-
-                return _clear = new RelayCommand(p => SelectedTextFile.Text = null);
-            }
-
-        }
-
-        public ICommand Quit { get; } = new RelayCommand(p => Application.Current.Shutdown());
-
-        public ICommand OnChecked
-        {
-            get
-            {
-                return new RelayCommand(obj => RaiseCanExecute());
-            }
-        }
-
-        private void RaiseCanExecute()
-        {
-            RemoveMarksAsync.RaiseCanExecuteChanged();
-            RemoveWordsAsync.RaiseCanExecuteChanged();
-        }
-    }
+		private void RaiseCanExecute()
+		{
+			RemoveMarksAsync.RaiseCanExecuteChanged();
+			RemoveWordsAsync.RaiseCanExecuteChanged();
+		}
+	}
 }

@@ -5,112 +5,113 @@ using WordProcessingWpfTask.ViewModel;
 
 namespace WordProcessorWpfTask.Tests
 {
-    [TestFixture]
-    [TestOf(typeof(MainWindowViewModel))]
-    public class ViewModelTests
-    {
-        private MainWindowViewModel _viewModel;
-        private Mock<IRedactor> _redactorMock;
-        [SetUp]
-        public void Setup()
-        {
-            _redactorMock = new Mock<IRedactor>();
-            _viewModel = new MainWindowViewModel(_redactorMock.Object);
-        }
+	[TestFixture]
+	[TestOf(typeof(MainWindowViewModel))]
+	public class ViewModelTests
+	{
+		private MainWindowViewModel _viewModel;
+		private Mock<IRedactor> _redactorMock;
 
-        [Test]
-        [Category("Operation with files")]
-        public void OnOpenAsync_ExpectedNewFileInCollection()
-        {
-            _redactorMock.Setup(redactor => redactor.OpenFileAsync(string.Empty).Result).Returns(new TextFile() { Text = "test" }).Verifiable();
+		[SetUp]
+		public void Setup()
+		{
+			_redactorMock = new Mock<IRedactor>();
+			_viewModel = new MainWindowViewModel(_redactorMock.Object);
+		}
 
-            _viewModel.OpenAsync.ExecuteAsync(string.Empty);
+		[Test]
+		[Category("Operation with files")]
+		public void OnOpenAsync_ExpectedNewFileInCollection()
+		{
+			_redactorMock.Setup(redactor => redactor.OpenFile(string.Empty)).Returns(new TextFile()).Verifiable();
 
-            _redactorMock.Verify();
-            Assert.That(_viewModel.TextFilesCollection, Is.Not.Empty);
-        }
+			_viewModel.Open.Execute(string.Empty);
 
-        [Test]
-        [Category("Operation with files")]
-        public void OnSaveAsync()
-        {
-            _viewModel.SelectedTextFile = new TextFile();
-            _redactorMock.Setup(redactor => redactor.SaveFileAsync(_viewModel.SelectedTextFile.Id, string.Empty));
+			_redactorMock.Verify();
+			Assert.That(_viewModel.TextFilesCollection, Is.Not.Empty);
+		}
 
-            _viewModel.SaveAsync.ExecuteAsync(string.Empty);
+		[Test]
+		[Category("Operation with files")]
+		public void OnSaveAsync()
+		{
+			_viewModel.SelectedTextFile = new TextFile();
+			_redactorMock.Setup(redactor => redactor.SaveFile(_viewModel.SelectedTextFile, string.Empty));
 
-            _redactorMock.Verify();
-        }
+			_viewModel.Save.Execute(string.Empty);
 
-        [Test]
-        [Category("RemoveMarks")]
-        public void OnRemoveMarksExecute()
-        {
-            //assign
-            var textFiles = new TextFile[] { new TextFile() { IsEditable = true }, new TextFile()};
-            var idArray = textFiles.Where(textFile => textFile.IsEditable).Select(textFile => textFile.Id).ToArray();
+			_redactorMock.Verify();
+		}
 
-            foreach (TextFile textFile in textFiles)
-            {
-                _viewModel.TextFilesCollection.Add(textFile);
-            }
+		[Test]
+		[Category("RemoveMarks")]
+		public void OnRemoveMarksExecute()
+		{
+			//assign
+			var textFiles = new TextFile[] { new TextFile() { IsEditable = true }, new TextFile() };
+			var editableTextFiles = textFiles.Where(textFile => textFile.IsEditable).ToArray();
 
-            _redactorMock.Setup(redactor => redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(idArray).Result).Verifiable();
+			foreach (TextFile textFile in textFiles)
+			{
+				_viewModel.TextFilesCollection.Add(textFile);
+			}
 
-            //act
-            _viewModel.RemoveMarksAsync.ExecuteAsync();
+			_redactorMock.Setup(redactor => redactor.RemoveAllMarksParallelAsync(editableTextFiles)).Verifiable();
 
-            //assert
-            _redactorMock.Verify();
-        }
+			//act
+			_viewModel.RemoveMarksAsync.ExecuteAsync();
 
-        [Test]
-        [Category("RemoveMarks")]
-        public void OnRemoveMarksCanExecute_Allright_ExpectedTrue()
-        {
-            _viewModel.TextFilesCollection.Add(new TextFile() { IsEditable = true });
+			//assert
+			_redactorMock.Verify();
+		}
 
-            var actual = _viewModel.RemoveMarksAsync.CanExecute(null);
+		[Test]
+		[Category("RemoveMarks")]
+		public void OnRemoveMarksCanExecute_Allright_ExpectedTrue()
+		{
+			_viewModel.TextFilesCollection.Add(new TextFile() { IsEditable = true });
 
-            Assert.That(actual, Is.True);
-        }
+			var actual = _viewModel.RemoveMarksAsync.CanExecute(null);
 
-        [Test]
-        [Category("RemoveWords")]
-        public void OnRemoveWordsExecute()
-        {
-            //assign
-            var textFiles = new TextFile[] { new TextFile() { IsEditable = true }, new TextFile() };
-            var idArray = textFiles.Where(textFile => textFile.IsEditable).Select(textFile => textFile.Id).ToArray();
-            var minLettersCount = 1;
+			Assert.That(actual, Is.True);
+		}
 
-            _viewModel.LettersCountText = minLettersCount.ToString();
+		[Test]
+		[Category("RemoveWords")]
+		public void OnRemoveWordsExecute()
+		{
+			//assign
+			var textFiles = new TextFile[] { new TextFile() { IsEditable = true }, new TextFile() };
+			var editableTextFiles = textFiles.Where(textFile => textFile.IsEditable).ToArray();
+			var minLettersCount = 1;
 
-            foreach (TextFile textFile in textFiles)
-            {
-                _viewModel.TextFilesCollection.Add(textFile);
-            }
+			_viewModel.LettersCountText = minLettersCount.ToString();
 
-            _redactorMock.Setup(redactor => redactor.RemoveWordsInSeveralTextFilesParallelAsync(idArray, minLettersCount).Result).Verifiable();
+			foreach (TextFile textFile in textFiles)
+			{
+				_viewModel.TextFilesCollection.Add(textFile);
+			}
 
-            //act
-            _viewModel.RemoveWordsAsync.ExecuteAsync();
+			_redactorMock.Setup(redactor => redactor.RemoveWordsParallelAsync(editableTextFiles, minLettersCount)).Verifiable();
 
-            //assert
-            _redactorMock.Verify();
-        }
+			//act
+			_viewModel.RemoveWordsAsync.ExecuteAsync();
 
-        [Test]
-        [Category("RemoveWords")]
-        public void OnRemoveWordsCanExecute_Allright_ExpectedTrue()
-        {
-            var minLetterCount = 1;
-            _viewModel.LettersCountText = minLetterCount.ToString();
-            _viewModel.TextFilesCollection.Add(new TextFile() { IsEditable = true });
+			//assert
+			_redactorMock.Verify();
+		}
 
-            var actual = _viewModel.RemoveWordsAsync.CanExecute(null);
+		[Test]
+		[Category("RemoveWords")]
+		public void OnRemoveWordsCanExecute_Allright_ExpectedTrue()
+		{
+			var minLetterCount = 1;
+			_viewModel.LettersCountText = minLetterCount.ToString();
+			_viewModel.TextFilesCollection.Add(new TextFile() { IsEditable = true });
 
-            Assert.That(actual, Is.True);
-        }
-    }
+			var actual = _viewModel.RemoveWordsAsync.CanExecute(null);
+
+			Assert.That(actual, Is.True);
+		}
+	}
 }
