@@ -117,10 +117,6 @@ namespace WordProcessingWpfTask.ViewModel
 			}
 		});
 
-		private ICommand _clear;
-		public ICommand Clear => _clear ??= new RelayCommand(() => SelectedTextFile.Text = null);
-
-
 		private ICommand _quit;
 		public ICommand Quit => _quit ??= new RelayCommand(() => Application.Current.Shutdown());
 

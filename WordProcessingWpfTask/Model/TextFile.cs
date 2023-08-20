@@ -33,17 +33,6 @@ namespace WordProcessingWpfTask.Model
             }
         }
 
-        private string _text;
-        public string Text
-        {
-            get => _text;
-            set
-            {
-                _text = value;
-                OnPropertyChanged();
-            }
-        }
-
         private string _filePath;
         public string FilePath
         {

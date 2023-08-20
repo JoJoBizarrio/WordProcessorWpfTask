@@ -16,8 +16,6 @@ namespace WordProcessorWpfTask.Tests
 			_redactor = new Redactor(_mockFileSystem);
 		}
 
-		#region tests of RemoveMarksInSeveralTextFiles
-
 		[Test]
 		async public Task RemoveMarks_ExpectedStringEmpty()
 		{
@@ -37,15 +35,16 @@ namespace WordProcessorWpfTask.Tests
 
 			// assert
 			var actual = _mockFileSystem.GetFile(textFile.TempFilePath);
-			Assert.IsTrue(actual.TextContents == expected);
+			Assert.That(actual.TextContents == expected, Is.True);
 		}
 
-		[Test]
-		async public Task RemoveWords_ExpectedStringEmpty()
+		[TestCase("five5\r\n", 100, "\r\n")] //rn because writeLine in redactor
+		[TestCase("$#five5&4\r\n", 100, "$#&\r\n")]
+		[TestCase("five5\r\n", 1, "five5\r\n")]
+		async public Task RemoveWords(string input, int lettersCount, string expected)
 		{
 			// assing
-			var expected = "\r\n"; //rn becuase writeLine in redactor
-			var mockInputFile = new MockFileData("five5");
+			var mockInputFile = new MockFileData(input);
 			var tempPathFile = "C:\\temp\\tempFile.txt";
 			_mockFileSystem.AddFile(tempPathFile, mockInputFile);
 			var textFile = new TextFile() { TempFilePath = tempPathFile };
@@ -55,169 +54,47 @@ namespace WordProcessorWpfTask.Tests
 			};
 
 			// act
-			await _redactor.RemoveWordsParallelAsync(list, 5);
+			await _redactor.RemoveWordsParallelAsync(list, lettersCount);
 
 			// assert
 			var actual = _mockFileSystem.GetFile(textFile.TempFilePath);
-			Assert.IsTrue(actual.TextContents == expected);
+			Assert.That(actual.TextContents == expected, Is.True);
 		}
 
-		//[TestCase(".,!?:()\\\";-", "")]
-		//[Category("RemoveMarksInSeveralTextFiles")]
-		//async public Task RemoveMarks_ExpectedStringEmpty(string marks, string expected)
-		//{
-		//	// assing
-		//	var textFiles = new TextFile[2];
-		//	textFiles[0] = new TextFile() { Text = marks };
-		//	textFiles[1] = new TextFile() { Text = marks };
+		[Test]
+		public void OpenFile_ExpectedNewTextFile()
+		{
+			var mockInputFile = new MockFileData("new file");
+			var tempPathFile = "C:\\temp\\tempFile.txt";
+			_mockFileSystem.AddFile(tempPathFile, mockInputFile);
+			_mockFileSystem.AddDirectory(Path.GetTempPath());
 
-		//	_redactor.Add(textFiles[0]);
-		//	_redactor.Add(textFiles[1]);
+			var actual = _redactor.OpenFile(tempPathFile);
 
-		//	// act
-		//	var actual = await _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(textFiles.Select(textFile => textFile.Id));
+			Assert.That(actual.FilePath == tempPathFile && actual.Title == "tempFile" && _mockFileSystem.FileExists(actual.TempFilePath), Is.True);
+		}
 
-		//	// assert
-		//	Assert.IsTrue(actual.All(textFile => textFile.Text == expected));
-		//}
+		[Test]
+		public void SaveFile_ExpectedNewFile() // should separate settings of MockFileSystem inside Setup
+		{
+			var mockInputFile = new MockFileData("empty");
+			var tempPathFile = "C:\\temp\\tempFile.txt";
+			_mockFileSystem.AddFile(tempPathFile, mockInputFile);
 
-		//[Test]
-		//[Category("RemoveMarksInSeveralTextFiles")]
-		//public void IdArrayIsNull_ThrowArgumentNullEception()
-		//{
-		//	AsyncTestDelegate testDelegate = async () => { await _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(null); };
+			var textFile = new TextFile()
+			{
+				Title = "newFile",
+				TempFilePath = tempPathFile
+			};
 
-		//	Assert.ThrowsAsync<ArgumentNullException>(testDelegate);
-		//}
+			var destinationFolder = "C:\\FolderWithTextFiles";
+			var destinationPath = "C:\\FolderWithTextFiles\\tempFile.txt";
+			_mockFileSystem.AddDirectory(destinationFolder);
 
-		//[Test]
-		//[Category("RemoveMarksInSeveralTextFiles")]
-		//async public Task IdArrayIsEmpty_ExpectedEmptyArray()
-		//{
-		//	var idEmptyArray = Enumerable.Empty<Guid>();
-		//	var expected = Enumerable.Empty<TextFile>();
+			//act
+			_redactor.SaveFile(textFile, destinationPath);
 
-		//	var actual = await _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(idEmptyArray);
-
-		//	Assert.That(actual, Is.EqualTo(expected));
-		//}
-
-		//[Test]
-		//[Category("RemoveMarksInSeveralTextFiles")]
-		//public void IdIncorrect_ThrowArgumentNullEception()
-		//{
-		//	var guidArray = new Guid[] { new Guid() };
-
-		//	AsyncTestDelegate testDelegate = async () => { await _redactor.RemoveAllMarksInSeveralTextFilesParallelAsync(guidArray); };
-
-		//	Assert.ThrowsAsync<ArgumentException>(testDelegate);
-		//}
-		//#endregion
-
-		//#region tests of RemoveWordsInSeveralTextFiles
-		//[Test]
-		//[Category("RemoveWordsInSeveralTextFiles")]
-		//public void IdArrayIsNull_ThrowArgumentNullException()
-		//{
-		//	var minimalLetterCount = 1;
-		//	AsyncTestDelegate testDelegate = async () => { await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(null, minimalLetterCount); };
-
-		//	Assert.ThrowsAsync<ArgumentNullException>(testDelegate);
-		//}
-
-		//[Test]
-		//[Category("RemoveWordsInSeveralTextFiles")]
-		//public void LetterCountLessZero_ThrowArgumentException()
-		//{
-		//	var illegalLetterCount = -1;
-		//	var idArray = Enumerable.Empty<Guid>();
-
-		//	AsyncTestDelegate testDelegate = async () => { await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(idArray, illegalLetterCount); };
-
-		//	Assert.ThrowsAsync<ArgumentException>(testDelegate);
-		//}
-
-		//[Test]
-		//[Category("RemoveWordsInSeveralTextFiles")]
-		//async public Task LetterCountEqualToZero_ExpectedEmptyArray()
-		//{
-		//	var letterCount = 0;
-		//	var idArray = new Guid[] { Guid.NewGuid() };
-		//	var expected = Enumerable.Empty<Guid>();
-
-		//	var actual = await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(idArray, letterCount);
-
-		//	Assert.That(actual, Is.EqualTo(expected));
-		//}
-
-		//[Test]
-		//[Category("RemoveWordsInSeveralTextFiles")]
-		//async public Task EmptyIdArray_ExpectedEmptyArray()
-		//{
-		//	var letterCount = 1;
-		//	var idArray = Enumerable.Empty<Guid>();
-		//	var expected = Enumerable.Empty<Guid>();
-
-		//	var actual = await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(idArray, letterCount);
-
-		//	Assert.That(actual, Is.EqualTo(expected));
-		//}
-
-		//[Category("RemoveWordsInSeveralTextFiles")]
-		//[TestCase("test start, testWord, test end", " start, testWord,  ", 4)]
-		//[TestCase("test start, testWord, test end", " , ,  ", 1001)]
-		//async public Task RemoveWords(string words, string expected, int lettersCount)
-		//{
-		//	var textFiles = new TextFile[] { new TextFile() { Text = words } };
-		//	_redactor.Add(textFiles[0]);
-
-		//	var actual = await _redactor.RemoveWordsInSeveralTextFilesParallelAsync(textFiles.Select(item => item.Id), lettersCount);
-
-		//	Assert.That(actual.First().Text, Is.EqualTo(expected));
-		//}
-		//#endregion
-
-		//#region operation with files
-		//[Test]
-		//[Category("OperationWithFile")]
-		//async public Task SaveFileAsync()
-		//{
-		//	var textFile = new TextFile()
-		//	{
-		//		Title = "test save",
-		//		FilePath = Environment.CurrentDirectory + "\\test save.txt",
-		//		Text = "run test of saveAsync"
-		//	};
-
-		//	_redactor.Add(textFile);
-
-		//	await _redactor.SaveFileAsync(textFile.Id, textFile.FilePath);
-
-		//	Assert.That(File.Exists(textFile.FilePath), Is.True);
-		//}
-
-		//[Test]
-		//[Category("OperationWithFile")]
-		//async public Task OpenFileAsync()
-		//{
-		//	await SaveFileAsync();
-		//	var path = Environment.CurrentDirectory + "\\test save.txt";
-
-		//	var textFile = await _redactor.OpenFileAsync(path);
-
-		//	Assert.That(File.Exists(textFile.FilePath), Is.True);
-		//}
-
-		//[Test]
-		//[Category("OperationWithFile")]
-		//public void OpenFileAsync_IncorrectPath_ThrowFileNotFoundException()
-		//{
-		//	var wrongPath = Environment.CurrentDirectory;
-
-		//	AsyncTestDelegate testDelegate = async () => { await _redactor.OpenFileAsync(wrongPath); }; //async Task testDelegate() { await _redactor.OpenFileAsync(wrongPath); } wtf?
-
-		//	Assert.ThrowsAsync<FileNotFoundException>(testDelegate);
-		//}
-		#endregion
+			Assert.That(_mockFileSystem.FileExists(destinationPath), Is.True);
+		}
 	}
 }

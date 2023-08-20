@@ -26,7 +26,6 @@
                 <Separator/>
                 <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding Save}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}"/>
                 <Separator/>
-                <MenuItem x:Name="ClearMenuItem" Header="Clear" Command="{Binding Clear}"/>
                 <MenuItem x:Name="QuitMenuItem" Header="Quit" Command="{Binding Quit}"/>
             </MenuItem>
         </Menu>

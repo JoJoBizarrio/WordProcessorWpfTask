@@ -68,7 +68,7 @@ namespace WordProcessingWpfTask.Model
 			CheckTextFile(textFiles);
 			CheckLettersCount(lettersCount);
 
-			if (!textFiles.Any())
+			if (!textFiles.Any() || lettersCount == 0)
 			{
 				return;
 			}
@@ -82,6 +82,11 @@ namespace WordProcessingWpfTask.Model
 		{
 			CheckTextFile(textFile);
 			CheckLettersCount(lettersCount);
+
+			if (lettersCount == 0)
+			{
+				return;
+			}
 
 			await Task.Run(() =>
 			{
@@ -155,7 +160,7 @@ namespace WordProcessingWpfTask.Model
 		{
 			CheckPath(path);
 
-			if (!File.Exists(path))
+			if (!_fileSystem.File.Exists(path))
 			{
 				throw new FileNotFoundException("File isnt exists by path.", Path.GetFileName(path));
 			}
