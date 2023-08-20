@@ -22,11 +22,10 @@
     <DockPanel >
         <Menu VerticalAlignment="Center" Height="18" DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding OpenAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}" />
+                <MenuItem x:Name="OpenMenuItem" Header="Open" Click="OpenMenuItem_Click" Command="{Binding Open}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}" />
                 <Separator/>
-                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding SaveAsync}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}"/>
+                <MenuItem x:Name="SaveMenuItem" Header="Save" Click="SaveMenuItem_Click" Command="{Binding Save}" CommandParameter="{Binding FilePath, ElementName=RedactorMainWindow}"/>
                 <Separator/>
-                <MenuItem x:Name="ClearMenuItem" Header="Clear" Command="{Binding Clear}"/>
                 <MenuItem x:Name="QuitMenuItem" Header="Quit" Command="{Binding Quit}"/>
             </MenuItem>
         </Menu>
@@ -45,11 +44,9 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <TabControl x:Name="RedactorTabControl" 
-                            views:TabContent.IsCached="True"
                             SelectedIndex="0" 
                             ItemsSource="{Binding TextFilesCollection}"
                             SelectedItem="{Binding SelectedTextFile, Mode=OneWayToSource}"
-                            BorderBrush="{x:Null}" 
                             TabStripPlacement="Top">
                     <TabControl.ItemTemplate>
                         <DataTemplate>
@@ -69,29 +66,23 @@
                                         Margin="0,3,3,0"
                                         VerticalAlignment="Center"
                                         Command="{Binding DataContext.Close, RelativeSource={RelativeSource AncestorType=views:MainWindow}}" 
-                                        CommandParameter="{Binding SelectedItem, ElementName=RedactorTabControl}"/>
+                                        CommandParameter="{Binding Id}"/>
                             </StackPanel>
                         </DataTemplate>
                     </TabControl.ItemTemplate>
 
-                    <views:TabContent.Template>
+                    <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="DarkOrange" BorderThickness="2" CornerRadius="15">
-                                <RichTextBox VerticalScrollBarVisibility="Auto"
-                                             HorizontalScrollBarVisibility="Auto"
-                                             Margin="3"
-                                             BorderThickness="0">
-                                    <RichTextBox.Document>
-                                        <FlowDocument>
-                                            <Paragraph>
-                                                <Run Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                            </Paragraph>
-                                        </FlowDocument>
-                                    </RichTextBox.Document>
-                                </RichTextBox>
-                            </Border>
+                            <TextBox VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     Margin="3"
+                                     BorderThickness="0"
+                                     AcceptsReturn="True"
+                                     AcceptsTab="True"
+                                     Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
+                            </TextBox>
                         </DataTemplate>
-                    </views:TabContent.Template>
+                    </TabControl.ContentTemplate>
                 </TabControl>
             </Grid>
 
@@ -113,7 +104,6 @@
                 <Button  x:Name="RemoveWordsButton" 
                          Style="{StaticResource RemoveButton}" 
                          Command="{Binding RemoveWordsAsync}"
-                         CommandParameter="{Binding ElementName=LettersCountTextBox, Path=Text}"
                          Grid.Column="1" 
                          Content="Remove words" />
 
