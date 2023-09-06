@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using WordProcessingWpfTask.Abstract;
 
@@ -40,26 +42,59 @@ namespace WordProcessingWpfTask.Model
 			{
 				lock (textFile)
 				{
-					var outFilePath = GetOutFilePath(textFile.TempFilePath);
+					using var fileSystemStream = _fileSystem.FileStream.New(textFile.TempFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
 
-					using (var reader = _fileSystem.File.OpenText(textFile.TempFilePath))
+					var readedBytes = new byte[4096];
+					var bytesReadedCount = 0;
+					var writerPosition = 0L;
+					var readerPosition = 0L;
+
+					while ((bytesReadedCount = fileSystemStream.Read(readedBytes, 0, 4096)) > 0)
 					{
-						using var writer = _fileSystem.File.CreateText(outFilePath);
+						readerPosition = fileSystemStream.Position;
 
-						var currentLine = "";
+						var filter = Encoding.ASCII.GetChars(readedBytes, 0, bytesReadedCount).Where(symbol => !Char.IsPunctuation(symbol));
+						var editBytes = Encoding.ASCII.GetBytes(new String(filter.ToArray()));
 
-						while ((currentLine = reader.ReadLine()) != null)
-						{
-							var filter = currentLine.ToCharArray().Where(symbol => !Char.IsPunctuation(symbol));
-							writer.WriteLine(new String(filter.ToArray()));
-						}
-					};
+						fileSystemStream.Position = writerPosition;
 
-					_fileSystem.File.Copy(outFilePath, textFile.TempFilePath, true);
-					_fileSystem.File.Delete(outFilePath);
+						fileSystemStream.Write(editBytes, 0, editBytes.Count());
+						writerPosition += editBytes.Length;
+
+						fileSystemStream.Position = readerPosition;
+					}
 				}
 			});
 		}
+
+		//async public Task RemoveAllMarksParallelAsync(TextFile textFile)
+		//{
+		//	CheckTextFile(textFile);
+
+		//	await Task.Run(() =>
+		//	{
+		//		lock (textFile)
+		//		{
+		//			var outFilePath = GetOutFilePath(textFile.TempFilePath);
+
+		//			using (var reader = _fileSystem.File.OpenText(textFile.TempFilePath))
+		//			{
+		//				using var writer = _fileSystem.File.CreateText(outFilePath);
+
+		//				var currentLine = "";
+
+		//				while ((currentLine = reader.ReadLine()) != null)
+		//				{
+		//					var filter = currentLine.ToCharArray().Where(symbol => !Char.IsPunctuation(symbol));
+		//					writer.WriteLine(new String(filter.ToArray()));
+		//				}
+		//			};
+
+		//			_fileSystem.File.Copy(outFilePath, textFile.TempFilePath, true);
+		//			_fileSystem.File.Delete(outFilePath);
+		//		}
+		//	});
+		//}
 		#endregion
 
 		#region remove words
