@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
+using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
 
 namespace WordProcessingWpfTask.Model
@@ -45,6 +47,8 @@ namespace WordProcessingWpfTask.Model
         }
 
         public string TempFilePath;
+
+        public FileSystemStream FileStream;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")

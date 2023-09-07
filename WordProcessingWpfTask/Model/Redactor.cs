@@ -89,40 +89,6 @@ namespace WordProcessingWpfTask.Model
             await Task.WhenAll(tasks.AsParallel().Select(async task => await task));
         }
 
-        //async public Task RemoveWordsParallelAsync(TextFile textFile, int lettersCount)
-        //{
-        //    CheckTextFile(textFile);
-        //    CheckLettersCount(lettersCount);
-
-        //    if (lettersCount == 0)
-        //    {
-        //        return;
-        //    }
-
-        //    await Task.Run(() =>
-        //    {
-        //        lock (textFile)
-        //        {
-        //            var outFilePath = GetOutFilePath(textFile.TempFilePath);
-
-        //            using (var reader = _fileSystem.File.OpenText(textFile.TempFilePath))
-        //            {
-        //                using var writer = _fileSystem.File.CreateText(outFilePath);
-
-        //                var currentLine = "";
-
-        //                while ((currentLine = reader.ReadLine()) != null)
-        //                {
-        //                    writer.WriteLine(RemoveWordsAlgorithmInternal(currentLine, lettersCount));
-        //                }
-        //            };
-
-        //            _fileSystem.File.Copy(outFilePath, textFile.TempFilePath, true);
-        //            _fileSystem.File.Delete(outFilePath);
-        //        }
-        //    });
-        //}
-
         async public Task RemoveWordsParallelAsync(TextFile textFile, int lettersCount)
         {
             CheckTextFile(textFile);
@@ -137,7 +103,7 @@ namespace WordProcessingWpfTask.Model
             {
                 lock (textFile)
                 {
-                    using var fileStream = _fileSystem.FileStream.New(textFile.FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                    var fileStream = textFile.FileStream;
 
                     var readBytes = new byte[4096];
                     var bytesReadCount = 0;
@@ -228,6 +194,7 @@ namespace WordProcessingWpfTask.Model
                 Title = Path.GetFileNameWithoutExtension(path),
                 FilePath = path,
                 TempFilePath = tempFilePath,
+                FileStream = _fileSystem.FileStream.New(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None)
             };
 
             return newTextFile;
